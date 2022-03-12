@@ -6,7 +6,7 @@
 class User
 {
 public:
-    User( const std::string& username, const std::string& password, const bool is_admin, double available_size);
+    User( const std::string& username, const std::string& password, const bool& is_admin, double available_size);
     std::string get_username();
     std::string get_password();
     bool is_admin_user();

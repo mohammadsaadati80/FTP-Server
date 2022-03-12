@@ -6,12 +6,17 @@ CFLAGS = -std=c++11 -Wall -Werror -I$(INCLUDE_DIR)
 
 OBJECTS = \
 	$(BUILD_DIR)/Main.o \
-	$(BUILD_DIR)/Server.o
+	$(BUILD_DIR)/Server.o \
 	$(BUILD_DIR)/User.o \
+	$(BUILD_DIR)/ConfigurationParser.o 
 
-ServerSensitivityList = $(SRC_DIR)/Server.cpp \
+ServerSensitivityList = $(SRC_DIR)/Server.cpp 
 
 UserSensitivityList = $(SRC_DIR)/User.cpp
+
+ConfigurationParserSensitivityList = $(SRC_DIR)/ConfigurationParser.cpp \
+	$(INCLUDE_DIR)/User.hpp \
+	$(INCLUDE_DIR)/json.hpp
 
 MainSensitivityList = \
 	$(SRC_DIR)/main.cpp \
@@ -33,6 +38,9 @@ $(BUILD_DIR)/Server.o: $(ServerSensitivityList)
 
 $(BUILD_DIR)/User.o: $(UserSensitivityList)
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/User.cpp -o $(BUILD_DIR)/User.o
+
+$(BUILD_DIR)/ConfigurationParser.o: $(ConfigurationParserSensitivityList)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/ConfigurationParser.cpp -o $(BUILD_DIR)/ConfigurationParser.o
 
 .PHONY: clean
 clean:
