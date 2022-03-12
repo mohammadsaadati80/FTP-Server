@@ -13,14 +13,17 @@
 
 #include "User.hpp"
 #include "ConfigurationParser.hpp"
+#include "UserManager.hpp"
 
 #define MAX_CONNECTIONS 10
 #define MAX_BUFFER_SIZE 1024
+constexpr int CONFIG_FILE = 1;
 
 class Server
 {
 public:
     void run_server();
+    static inline std::vector<std::string> files; 
 };
 
 class Connected_User
