@@ -11,6 +11,9 @@
 #include <vector>
 #include <algorithm>
 
+#include "User.hpp"
+#include "ConfigurationParser.hpp"
+
 #define MAX_CONNECTIONS 10
 #define MAX_BUFFER_SIZE 1024
 
@@ -18,14 +21,6 @@ class Server
 {
 public:
     void run_server();
-};
-
-class User
-{
-public:
-    std::string username;
-    std::string password;
-    bool type;
 };
 
 class Connected_User

@@ -2,7 +2,7 @@ CC = g++
 BUILD_DIR = build
 SRC_DIR = src
 INCLUDE_DIR = include
-CFLAGS = -std=c++11 -Wall -Werror -I$(INCLUDE_DIR)
+CFLAGS = -std=c++11 -pthread -Wall -Werror -I$(INCLUDE_DIR)
 
 OBJECTS = \
 	$(BUILD_DIR)/Main.o \
@@ -10,7 +10,9 @@ OBJECTS = \
 	$(BUILD_DIR)/User.o \
 	$(BUILD_DIR)/ConfigurationParser.o 
 
-ServerSensitivityList = $(SRC_DIR)/Server.cpp 
+ServerSensitivityList = $(SRC_DIR)/Server.cpp \
+	$(INCLUDE_DIR)/ConfigurationParser.hpp \
+	$(INCLUDE_DIR)/User.hpp 
 
 UserSensitivityList = $(SRC_DIR)/User.cpp
 

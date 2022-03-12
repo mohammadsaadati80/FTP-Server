@@ -64,7 +64,7 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> user
         int correctuser = 0 ;
         for (int i = 0 ; i < users_size ; i++)
         {
-            if (users[i].username == uname)
+            if (users[i].get_username() == uname)
             {
                 correctuser = 1;
                 Connected_User tmp;
@@ -90,10 +90,10 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> user
         int correctpass = 0;
         for (int i = 0 ; i < users_size ; i++)
         {
-            if (users[i].password == pass )
+            if (users[i].get_password() == pass )
             {
                 correctpass = 1;
-                string uname = users[i].username;
+                string uname = users[i].get_username();
                 int was_in = 0;
                 for (int j = 0 ; j < connected_users_size ; j++)
                 {
