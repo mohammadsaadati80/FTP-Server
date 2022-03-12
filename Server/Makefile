@@ -7,8 +7,11 @@ CFLAGS = -std=c++11 -Wall -Werror -I$(INCLUDE_DIR)
 OBJECTS = \
 	$(BUILD_DIR)/Main.o \
 	$(BUILD_DIR)/Server.o
+	$(BUILD_DIR)/User.o \
 
 ServerSensitivityList = $(SRC_DIR)/Server.cpp \
+
+UserSensitivityList = $(SRC_DIR)/User.cpp
 
 MainSensitivityList = \
 	$(SRC_DIR)/main.cpp \
@@ -27,6 +30,9 @@ $(BUILD_DIR)/Main.o: $(MainSensitivityList)
 
 $(BUILD_DIR)/Server.o: $(ServerSensitivityList)
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/Server.cpp -o $(BUILD_DIR)/Server.o	
+
+$(BUILD_DIR)/User.o: $(UserSensitivityList)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/User.cpp -o $(BUILD_DIR)/User.o
 
 .PHONY: clean
 clean:
