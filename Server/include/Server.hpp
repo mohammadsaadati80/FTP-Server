@@ -8,6 +8,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <vector>
+#include <algorithm>
 
 #define MAX_CONNECTIONS 10
 #define MAX_BUFFER_SIZE 1024
@@ -16,6 +18,27 @@ class Server
 {
 public:
     void run_server();
+};
+
+class User
+{
+public:
+    std::string username;
+    std::string password;
+    bool type;
+};
+
+class Connected_User
+{
+public:   
+    std::string username;
+    bool login;
+};
+
+class Command_handler
+{
+public :
+    void get_command(char buf[MAX_BUFFER_SIZE] , std::vector <User> users);
 };
 
 #endif
