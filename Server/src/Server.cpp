@@ -5,20 +5,24 @@ using namespace std;
 vector <Connected_User> connected_users;
 int users_size , connected_users_size;
 
-void Server::run_server()
+int Server::run_socket(int port)
 {
-    cout << "1234" << endl;
-    User* temp = UserManager::find_user_by_username("Ali");
-    cout << temp->get_username() << endl;
     struct sockaddr_in server_sin;
     int server_socket_fd;
-    server_sin.sin_port = htons(command_channel_port);
+    server_sin.sin_port = htons(port);
     server_sin.sin_addr.s_addr = inet_addr("127.0.0.1");;
     server_sin.sin_family = AF_INET;
+    int opt = 1;
     
     if ((server_socket_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
         cout << "Failed to create a socket" << endl;
+        exit(EXIT_FAILURE);
+    }
+
+    if (setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(int)) < 0)
+    {
+        cout << "Failed to set socket option" << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -34,22 +38,79 @@ void Server::run_server()
         exit(EXIT_FAILURE);
     }
 
-    struct sockaddr_in client_sin;
-    int client_in_len;
-    int new_server_fd ;
-    if ((new_server_fd = accept(server_socket_fd, (struct sockaddr*)& client_sin, (socklen_t*)&client_in_len)) < 0)
-    {
-        cout << "Failed to accept." << endl;
-    }
+    return server_socket_fd;
+}
 
-    char buf[MAX_BUFFER_SIZE];
-    while (true)
-    {
-        if ((client_in_len = recv(new_server_fd, buf, sizeof(buf), 0)))
-            cout << buf << endl;
+void Server::run_server()
+{
+    int command_fd = run_socket(command_channel_port);
+    int data_fd = run_socket(data_channel_port);
+
+    fd_set read_fds, copy_fds;
+    FD_ZERO(&copy_fds);
+    FD_SET(command_fd, &copy_fds);
+    int max_fd = command_fd;
+    int activity;
+    char buf[128] = {0};
+    printf("Server is starting ...\n");
+
+    while (true) {
+        memcpy(&read_fds, &copy_fds, sizeof(copy_fds)); 
+
+        activity = select(max_fd + 1, &read_fds, NULL, NULL, NULL); 
+
+        if (activity < 0)
+            return;
+
+        int ready_sockets = activity;
+        for (int fd = 0; fd <= max_fd  &&  ready_sockets > 0; ++fd) {
+            if (FD_ISSET(fd, &read_fds)) { 
+                if (fd == command_fd) { // New connection.
+                    int new_command_socket;
+                    if ((new_command_socket = accept(command_fd, NULL, NULL)) < 0)
+                        return;
+                    int new_data_socket;
+                    if ((new_data_socket = accept(data_fd, NULL, NULL)) < 0)
+                        return;
+                    
+                    // command_handler->get_user_manager()->add_user(new_command_socket, new_data_socket);
+                    FD_SET(new_command_socket, &copy_fds);
+                    if (new_command_socket > max_fd)
+                        max_fd = new_command_socket;
+                }
+                else { // New readable socket.
+                    bool close_connection = false;
+                    memset(buf, 0, sizeof buf);
+                    int result = recv(fd, buf, sizeof(buf), 0);
+
+                    if (result < 0)
+                        if (errno != EWOULDBLOCK)
+                            close_connection = true;
+
+                    if (result == 0) 
+                        close_connection = 1;
+                    
+                    if (result > 0) { // Data is received.
+                        //vector<string> output = command_handler->get_command(buf, users, fd);
+                        // send(fd , output[COMMAND].c_str() , output[COMMAND].size() , 0);
+                        // send(command_handler->get_user_manager()->get_user_by_socket(fd)->get_data_socket(),
+                        //         output[CHANNEL].c_str() , output[CHANNEL].size() , 0);
+                    }
+
+                    if (close_connection) {
+                        close(fd);
+                        // close(command_handler->get_user_manager()->get_user_by_socket(fd)->get_data_socket());
+                        // command_handler->get_user_manager()->remove_user(fd);
+                        FD_CLR(fd, &copy_fds);
+                        if (fd == max_fd)
+                            while (FD_ISSET(max_fd, &copy_fds) == 0)
+                                max_fd -= 1;
+                    }
+                }
+            }
+        }
+        printf("---------------- Event ----------------\n");
     }
-    close(server_socket_fd);
-    close(new_server_fd);
 }
 
 

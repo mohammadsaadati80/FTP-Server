@@ -22,12 +22,15 @@
 
 #define MAX_CONNECTIONS 10
 #define MAX_BUFFER_SIZE 1024
+#define COMMAND 0
+#define CHANNEL 1
 constexpr int CONFIG_FILE = 1;
 
 class Server
 {
 public:
     void run_server();
+    int run_socket(int port);
     static inline std::vector<std::string> files; 
     static inline int command_channel_port;
     static inline int data_channel_port;    
