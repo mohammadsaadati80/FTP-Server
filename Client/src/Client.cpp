@@ -13,7 +13,7 @@ void Client::run_client()
 
     struct sockaddr_in server_command_address;
     server_command_address.sin_family = AF_INET;
-    server_command_address.sin_port = htons(COMMAND_CHANNEL_PORT);
+    server_command_address.sin_port = htons(command_channel_port);
     if (inet_pton(AF_INET, "127.0.0.1", &server_command_address.sin_addr) <= 0) {
         cout << "The address is invalid or unsupported." << endl;
         exit(EXIT_FAILURE);
@@ -34,7 +34,7 @@ void Client::run_client()
 
     struct sockaddr_in server_data_address;
     server_data_address.sin_family = AF_INET;
-    server_data_address.sin_port = htons(DATA_CHANNEL_PORT);
+    server_data_address.sin_port = htons(data_channel_port);
     if (inet_pton(AF_INET, "127.0.0.1", &server_data_address.sin_addr) <= 0) {
         cout << "The address is invalid or unsupported." << endl;
         exit(EXIT_FAILURE);

@@ -14,24 +14,11 @@ void ConfigurationParser::parse()
     file >> json;
     command_channel_port = json["commandChannelPort"].get<int>();
     data_channel_port = json["dataChannelPort"].get<int>();
-    for (auto& user: json["users"])
-    {
-        users.push_back(
-            new User(
-            user["user"].get<string>(),
-            user["password"].get<string>(),
-            user["admin"].get<string>() == "true",
-            stoi(user["size"].get<string>()))
-        );
-    }
+
     for (auto& file: json["files"])
         files.push_back(file.get<string>());
 }
 
-vector<User*> ConfigurationParser::get_users()
-{
-    return users;
-}
 vector<string> ConfigurationParser::get_files()
 {
     return files;

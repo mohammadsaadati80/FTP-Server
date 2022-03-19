@@ -2,13 +2,18 @@ CC = g++
 BUILD_DIR = build
 SRC_DIR = src
 INCLUDE_DIR = include
-CFLAGS = -std=c++11 -pthread -Wall -Werror -I$(INCLUDE_DIR)
+CFLAGS = -std=c++17 -pthread -Wall -Werror -I$(INCLUDE_DIR)
 
 OBJECTS = \
 	$(BUILD_DIR)/Main.o \
-	$(BUILD_DIR)/Client.o
+	$(BUILD_DIR)/Client.o \
+	$(BUILD_DIR)/ConfigurationParser.o
 
 ClientSensitivityList = $(SRC_DIR)/Client.cpp \
+	$(INCLUDE_DIR)/ConfigurationParser.hpp
+
+ConfigurationParserSensitivityList = $(SRC_DIR)/ConfigurationParser.cpp \
+	$(INCLUDE_DIR)/json.hpp
 
 MainSensitivityList = \
 	$(SRC_DIR)/main.cpp \
@@ -27,6 +32,9 @@ $(BUILD_DIR)/Main.o: $(MainSensitivityList)
 
 $(BUILD_DIR)/Client.o: $(ClientSensitivityList)
 	$(CC) $(CFLAGS) -c $(SRC_DIR)/Client.cpp -o $(BUILD_DIR)/Client.o
+
+$(BUILD_DIR)/ConfigurationParser.o: $(ConfigurationParserSensitivityList)
+	$(CC) $(CFLAGS) -c $(SRC_DIR)/ConfigurationParser.cpp -o $(BUILD_DIR)/ConfigurationParser.o
 
 .PHONY: clean
 clean:

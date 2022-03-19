@@ -11,15 +11,18 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 
+#include "ConfigurationParser.hpp"
+
 #define MESSAGE_BUFFER_SIZE 1024
-#define COMMAND_CHANNEL_PORT 5000
-#define DATA_CHANNEL_PORT 5001
+constexpr int CONFIG_FILE = 1;
 
 class Client
 {
 public:
     void run_client();
     void* recive_file(void* _client_data_fd);
+    static inline int command_channel_port;
+    static inline int data_channel_port;
 };
 
 #endif

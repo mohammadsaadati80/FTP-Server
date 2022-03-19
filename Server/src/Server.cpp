@@ -9,7 +9,7 @@ void Server::run_server()
 {
     struct sockaddr_in server_sin;
     int server_socket_fd;
-    server_sin.sin_port = htons(5000);
+    server_sin.sin_port = htons(command_channel_port);
     server_sin.sin_addr.s_addr = inet_addr("127.0.0.1");;
     server_sin.sin_family = AF_INET;
     

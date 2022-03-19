@@ -24,6 +24,8 @@ class Server
 public:
     void run_server();
     static inline std::vector<std::string> files; 
+    static inline int command_channel_port;
+    static inline int data_channel_port;    
 };
 
 class Connected_User
