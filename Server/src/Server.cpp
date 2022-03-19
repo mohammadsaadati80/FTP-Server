@@ -7,6 +7,9 @@ int users_size , connected_users_size;
 
 void Server::run_server()
 {
+    cout << "1234" << endl;
+    User* temp = UserManager::find_user_by_username("Ali");
+    cout << temp->get_username() << endl;
     struct sockaddr_in server_sin;
     int server_socket_fd;
     server_sin.sin_port = htons(command_channel_port);
@@ -49,8 +52,24 @@ void Server::run_server()
     close(new_server_fd);
 }
 
+
+string exec(const char* cmd) {
+    array<char, 128> buffer;
+    string result;
+    unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+    return result;
+}
+
+
 void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> users , int fd)
 {
+
     if (buf[0] == 'u' && buf[1] == 's' && buf[2] == 'e' && buf[3] == 'r')
     {
         string uname = "";
@@ -120,6 +139,21 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> user
     }
     else if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
     {
-
+        string directory = exec("pwd");
+        cout << "257: " << directory << endl;
+    }
+    else if (buf[0] == 'm' && buf[1] == 'k' && buf[2] == 'd')
+    {
+        string path = "";
+        int cnt = 3;
+        while (cnt < MAX_BUFFER_SIZE)
+        {
+            if (buf[cnt]!= ' ')
+                path += buf[cnt];
+            cnt++;
+        }
+        string cmd = "mkdir" + path;
+        string directory = exec(cmd.c_str());
+        cout << "257: " << directory << "created." << endl;
     }
 }

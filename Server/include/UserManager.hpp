@@ -11,7 +11,8 @@
 class UserManager
 {
 public:
-    static User* find_user(std::string user_name);
+    static User* find_user_by_username(std::string user_name);
+    static User* find_user_by_index(int index);
     static std::vector<User*> users;
 };
 

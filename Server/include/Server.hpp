@@ -10,6 +10,11 @@
 #include <unistd.h>
 #include <vector>
 #include <algorithm>
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <array>
 
 #include "User.hpp"
 #include "ConfigurationParser.hpp"
