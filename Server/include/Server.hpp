@@ -33,12 +33,13 @@ class Connected_User
 public:   
     std::string username;
     bool login;
+    int fd;
 };
 
 class Command_handler
 {
 public :
-    void get_command(char buf[MAX_BUFFER_SIZE] , std::vector <User> users);
+    void get_command(char buf[MAX_BUFFER_SIZE] , std::vector <User> users , int fd);
 };
 
 #endif

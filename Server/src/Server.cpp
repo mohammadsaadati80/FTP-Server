@@ -49,7 +49,7 @@ void Server::run_server()
     close(new_server_fd);
 }
 
-void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> users)
+void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> users , int fd)
 {
     if (buf[0] == 'u' && buf[1] == 's' && buf[2] == 'e' && buf[3] == 'r')
     {
@@ -117,5 +117,9 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> user
         }
         if (correctpass == 0)
             cout << "430: Invalid username or password" << endl;
+    }
+    else if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
+    {
+
     }
 }
