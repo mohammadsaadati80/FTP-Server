@@ -17,8 +17,12 @@ User* UserManager::find_user_by_username(std::string username)
 User* UserManager::find_user_by_index(int index)
 {
     int user_size = users.size();
-    cout << user_size << endl;
     if (index < user_size)
         return users[index];
     return nullptr;
+}
+
+std::vector <User*> UserManager::get_all_users()
+{
+    return users;
 }

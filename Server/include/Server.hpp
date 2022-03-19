@@ -15,6 +15,7 @@
 #include <stdexcept>
 #include <string>
 #include <array>
+#include <ctype.h>
 
 #include "User.hpp"
 #include "ConfigurationParser.hpp"
@@ -47,7 +48,7 @@ public:
 class Command_handler
 {
 public :
-    void get_command(char buf[MAX_BUFFER_SIZE] , std::vector <User> users , int fd);
+    void get_command(char buf[MAX_BUFFER_SIZE] , int fd);
 };
 
 #endif

@@ -43,6 +43,7 @@ int Server::run_socket(int port)
 
 void Server::run_server()
 {
+    Command_handler ch1;
     int command_fd = run_socket(command_channel_port);
     int data_fd = run_socket(data_channel_port);
 
@@ -51,7 +52,7 @@ void Server::run_server()
     FD_SET(command_fd, &copy_fds);
     int max_fd = command_fd;
     int activity;
-    char buf[128] = {0};
+    char buf[MAX_BUFFER_SIZE] = {0};
     printf("Server is starting ...\n");
 
     while (true) {
@@ -95,6 +96,8 @@ void Server::run_server()
                         // send(fd , output[COMMAND].c_str() , output[COMMAND].size() , 0);
                         // send(command_handler->get_user_manager()->get_user_by_socket(fd)->get_data_socket(),
                         //         output[CHANNEL].c_str() , output[CHANNEL].size() , 0);
+                        ch1.get_command(buf , fd);
+                        cout << buf << endl;
                     }
 
                     if (close_connection) {
@@ -128,23 +131,29 @@ string exec(const char* cmd) {
 }
 
 
-void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> users , int fd)
+void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
 {
-
+    //UserManager *users1;
+    vector <User*> users = UserManager::get_all_users();
+    //cout << buf << endl;
+    //cout << users.size() << endl;
+    //cout << fd << endl;
+    //cout << users[0]->get_username() << endl;
     if (buf[0] == 'u' && buf[1] == 's' && buf[2] == 'e' && buf[3] == 'r')
     {
         string uname = "";
-        int cnt = 4;
-        while (cnt < MAX_BUFFER_SIZE)
+        int cnt = 5;
+        while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
         {
             if (buf[cnt]!= ' ')
                 uname += buf[cnt];
             cnt++;
         }
+        //cout << "uname is " << uname << endl;
         int correctuser = 0 ;
-        for (int i = 0 ; i < users_size ; i++)
+        for (int i = 0 ; i < int(users.size()) ; i++)
         {
-            if (users[i].get_username() == uname)
+            if (users[i]->get_username() == uname)
             {
                 correctuser = 1;
                 Connected_User tmp;
@@ -160,20 +169,20 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> user
     else if (buf[0] == 'p' && buf[1] == 'a' && buf[2] == 's' && buf[3] == 's')
     {
         string pass = "";
-        int cnt = 4;
-        while (cnt < MAX_BUFFER_SIZE)
+        int cnt = 5;
+        while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
         {
             if (buf[cnt]!= ' ')
                 pass += buf[cnt];
             cnt++;
         }
         int correctpass = 0;
-        for (int i = 0 ; i < users_size ; i++)
+        for (int i = 0 ; i < int(users.size()) ; i++)
         {
-            if (users[i].get_password() == pass )
+            if (users[i]->get_password() == pass )
             {
                 correctpass = 1;
-                string uname = users[i].get_username();
+                string uname = users[i]->get_username();
                 int was_in = 0;
                 for (int j = 0 ; j < connected_users_size ; j++)
                 {
@@ -206,15 +215,15 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , vector <User> user
     else if (buf[0] == 'm' && buf[1] == 'k' && buf[2] == 'd')
     {
         string path = "";
-        int cnt = 3;
-        while (cnt < MAX_BUFFER_SIZE)
+        int cnt = 4;
+        while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
         {
             if (buf[cnt]!= ' ')
                 path += buf[cnt];
             cnt++;
         }
-        string cmd = "mkdir" + path;
+        string cmd = "mkdir " + path;
         string directory = exec(cmd.c_str());
-        cout << "257: " << directory << "created." << endl;
+        cout << "257: " << path << "created." << endl;
     }
 }
