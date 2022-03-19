@@ -290,7 +290,9 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 to += buf[cnt];
             cnt++;
         }
-        cout << from << "  " << to << endl;
+        string cmd = "mv " + from + " " + to ;
+        string result = exec(cmd.c_str());
+        cout << "250: Successful change." << endl;
     }
 }
 
