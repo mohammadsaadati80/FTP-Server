@@ -226,4 +226,80 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         string directory = exec(cmd.c_str());
         cout << "257: " << path << "created." << endl;
     }
+    else if (buf[0] == 'd' && buf[1] == 'e' && buf[2] == 'l' && buf[3]=='e')
+    {
+        int cnt = 8;
+        string name;
+        while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
+        {
+            if (buf[cnt]!= ' ')
+                name += buf[cnt];
+            cnt++;
+        }
+        if (buf[5]=='-' && buf[6]=='f')
+        {
+            string cmd="rm " + name;
+            string directory = exec(cmd.c_str());
+            cout << "250: " << name << " deleted." << endl;
+        }
+        else if (buf[5]=='-' && buf[6]=='d')
+        {
+            string cmd="rm -r " + name;
+            string directory = exec(cmd.c_str());
+            cout << "250: " << name << " deleted." << endl;
+        }
+        else
+            cout << "500: Error" << endl;
+    }
+    else if (buf[0] == 'l' && buf[1] == 's')          // badan send ro dar run server bbrim ---- dar yek khat ham bashad
+    {
+        string result = exec("ls");
+        char result_arr [result.length() + 1];
+        strcpy(result_arr, result.c_str());
+        send(fd , result_arr , result.length() + 1, 0);
+        cout << "226: List transfer done." << endl;
+    }
+    else if (buf[0] == 'c' && buf[1] == 'w' && buf[2] == 'd')       // check shavad
+    {
+        int cnt = 4;
+        string directory;
+        while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
+        {
+            if (buf[cnt]!= ' ')
+                directory += buf[cnt];
+            cnt++;
+        }
+        string cmd = "cd " + directory ;
+        string result = exec(cmd.c_str());
+        cout << "250: Successful change." << endl;
+    }
+    else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'n' && buf[3] == 'a' && buf[4] == 'm' && buf[5] == 'e') 
+    {
+        int cnt = 7;
+        string from , to;
+        while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
+        {
+            if (buf[cnt]!= ' ')
+                from += buf[cnt];
+            cnt++;
+        }
+        cnt ++;
+        while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
+        {
+            if (buf[cnt]!= ' ')
+                to += buf[cnt];
+            cnt++;
+        }
+        cout << from << "  " << to << endl;
+    }
 }
+
+
+
+
+
+
+
+
+
+
