@@ -26,3 +26,12 @@ std::vector <User*> UserManager::get_all_users()
 {
     return users;
 }
+User* UserManager::find_user_by_fd(int fd)
+{
+    for(User* user : UserManager::users)
+    {
+        if(user->get_fd() == fd)
+            return user;
+    }
+    return nullptr;
+}

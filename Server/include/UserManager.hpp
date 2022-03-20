@@ -15,6 +15,7 @@ public:
     static User* find_user_by_index(int index);
     static std::vector<User*> users;
     static std::vector<User*> get_all_users();
+    static User* find_user_by_fd(int fd);
 };
 
 #endif

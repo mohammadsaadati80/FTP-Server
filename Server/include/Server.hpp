@@ -16,6 +16,8 @@
 #include <string>
 #include <array>
 #include <ctype.h>
+#include <fstream>
+#include <sys/stat.h>
 
 #include "User.hpp"
 #include "ConfigurationParser.hpp"
