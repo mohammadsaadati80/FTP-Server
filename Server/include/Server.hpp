@@ -18,6 +18,9 @@
 #include <ctype.h>
 #include <fstream>
 #include <sys/stat.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include "User.hpp"
 #include "ConfigurationParser.hpp"
