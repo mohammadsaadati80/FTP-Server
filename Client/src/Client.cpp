@@ -48,8 +48,6 @@ void Client::run_client()
     }
     cout<<"connected to data server!"<<endl;
 
-    thread new_thread(&Client::recive_file, this, (void*)&client_data_socket_fd);
-
     string command;
     char buffer[MESSAGE_BUFFER_SIZE];
     while(getline(cin, command))

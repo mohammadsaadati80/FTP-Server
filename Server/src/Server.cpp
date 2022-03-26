@@ -187,6 +187,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         if (correctuser == 0)
             cout << "430: Invalid username or password" << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     else if (buf[0] == 'p' && buf[1] == 'a' && buf[2] == 's' && buf[3] == 's')
     {
@@ -229,6 +231,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         if (correctpass == 0)
             cout << "430: Invalid username or password" << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     int check_log = 0;
     for (int j = 0 ; j < int(connected_users.size()) ; j++)
@@ -241,6 +245,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
     {
         string directory = exec("pwd");
         cout << "257: " << directory << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     else if (buf[0] == 'm' && buf[1] == 'k' && buf[2] == 'd')
     {
@@ -255,6 +261,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         string cmd = "mkdir " + path;
         string directory = exec(cmd.c_str());
         cout << "257: " << path << "created." << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     else if (buf[0] == 'd' && buf[1] == 'e' && buf[2] == 'l' && buf[3]=='e')
     {
@@ -280,6 +288,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         else
             cout << "500: Error" << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     else if (buf[0] == 'l' && buf[1] == 's')          // badan send ro dar run server bbrim ---- dar yek khat ham bashad
     {
@@ -302,6 +312,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         string cmd = "cd " + directory ;
         string result = exec(cmd.c_str());
         cout << "250: Successful change." << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'n' && buf[3] == 'a' && buf[4] == 'm' && buf[5] == 'e') 
     {
@@ -323,6 +335,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         string cmd = "mv " + from + " " + to ;
         string result = exec(cmd.c_str());
         cout << "250: Successful change." << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     else if (buf[0] == 'h' && buf[1] == 'e' && buf[2] == 'l' && buf[3] == 'p') 
     {
@@ -338,6 +352,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         cout << "rename [from] [to], renames the file with name 'from' to a file with name 'to'." << endl << endl;
         cout << "retr [name], for downloading the file with giben name , but you need to have enough available_size for downloading the file." << endl << endl;
         cout << "help, This command gives you commands list with an explanation." << endl << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     else if (buf[0] == 'q' && buf[1] == 'u' && buf[2] == 'i' && buf[3] == 't') 
     {
@@ -350,6 +366,8 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         close(fd);
         cout << "221: Successful Quit." << endl;
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 't' && buf[3] == 'r')
     {
@@ -380,18 +398,10 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             strcpy(result_arr, contents.c_str());
             send(fd , result_arr , contents.length() + 1, 0);
         }
+        char empty[1] = {'\n'};
+        send(fd , empty , 1, 0);
     }
     }
 
 
 }
-
-
-
-
-
-
-
-
-
-

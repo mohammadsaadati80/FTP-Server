@@ -20,6 +20,8 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include "User.hpp"
 #include "ConfigurationParser.hpp"
