@@ -1,5 +1,5 @@
-#ifndef __SERVER_HPP__
-#define __SERVER_HPP__
+#ifndef __COMMAND_HANDLER_HPP__
+#define __COMMAND_HANDLER_HPP__
 
 #include <iostream>
 #include <string>
@@ -23,25 +23,14 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include "ConfigurationParser.hpp"
 #include "UserManager.hpp"
-#include "CommandHandler.hpp"
 
-#define MAX_CONNECTIONS 10
+#define MAX_BUFFER_SIZE 1024
 
-#define COMMAND 0
-#define CHANNEL 1
-constexpr int CONFIG_FILE = 1;
-
-class Server
+class CommandHandler
 {
-public:
-    void run_server();
-    int run_socket(int port);
-    static inline std::vector<std::string> files; 
-    static inline int command_channel_port;
-    static inline int data_channel_port;    
-
+public :
+    std::vector<std::string> get_command(char buf[MAX_BUFFER_SIZE] , int fd);
     
 };
 
