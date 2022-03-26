@@ -18,6 +18,8 @@
 #include <ctype.h>
 #include <fstream>
 #include <sys/stat.h>
+#include <stdio.h>
+#include <time.h>
 
 #include "User.hpp"
 #include "ConfigurationParser.hpp"

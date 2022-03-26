@@ -115,6 +115,25 @@ void Server::run_server()
         printf("---------------- Event ----------------\n");
     }
 }
+
+const string currentDateTime() {
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+    return buf;
+}
+
+void writelog(string filetext) 
+{
+    ofstream myfile;
+    myfile.open ("log.txt", fstream::app);
+    myfile << filetext;
+    myfile.close();
+}
+
+
 long GetFileSize(string filename)
 {
     struct stat stat_buf;
@@ -139,12 +158,7 @@ string exec(const char* cmd) {
 
 void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
 {
-    //UserManager *users1;
     vector <User*> users = UserManager::get_all_users();
-    //cout << buf << endl;
-    //cout << users.size() << endl;
-    //cout << fd << endl;
-    //cout << users[0]->get_username() << endl;
     if (buf[0] == 'u' && buf[1] == 's' && buf[2] == 'e' && buf[3] == 'r')
     {
         string uname = "";
@@ -155,7 +169,6 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 uname += buf[cnt];
             cnt++;
         }
-        //cout << "uname is " << uname << endl;
         int correctuser = 0 ;
         for (int i = 0 ; i < int(users.size()) ; i++)
         {
@@ -169,6 +182,7 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 cout << "331: User name okay,need password." << endl;
                 connected_users.push_back(tmp);
                 users[i]->set_fd(fd);
+                writelog("user connected " + currentDateTime() + '\n');
             }
         }
         if (correctuser == 0)
@@ -201,6 +215,7 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                         {
                             connected_users[j].login = 1;
                             cout << "User logged in, proceed. Logged out if appropriate." << endl;
+                            writelog("user login " + currentDateTime() + '\0');
                         }
                         else
                         {
@@ -215,7 +230,14 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         if (correctpass == 0)
             cout << "430: Invalid username or password" << endl;
     }
-    else if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
+    int check_log = 0;
+    for (int j = 0 ; j < int(connected_users.size()) ; j++)
+        if (connected_users[j].fd == fd)
+            check_log = connected_users[j].login;
+
+    else if (check_log == 1)   //user logined
+    {
+    if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
     {
         string directory = exec("pwd");
         cout << "257: " << directory << endl;
@@ -359,9 +381,7 @@ void Command_handler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             send(fd , result_arr , contents.length() + 1, 0);
         }
     }
-
-
-
+    }
 
 
 }
