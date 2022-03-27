@@ -2,7 +2,7 @@ CC = g++
 BUILD_DIR = build
 SRC_DIR = src
 INCLUDE_DIR = include
-CFLAGS = -std=c++17 -pthread -Wall -Werror -I$(INCLUDE_DIR)
+CFLAGS = -std=c++17  -Wall -Werror -I$(INCLUDE_DIR)
 
 OBJECTS = \
 	$(BUILD_DIR)/Main.o \

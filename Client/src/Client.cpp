@@ -58,7 +58,28 @@ void Client::run_client()
         cout << buffer << endl;
     }
 
-    close(client_socket_fd);
+    //close(client_socket_fd);
+
+
+    // string command;
+    // char buffer[MESSAGE_BUFFER_SIZE];
+    // char empty[MESSAGE_BUFFER_SIZE];
+    // while(getline(cin, command)) {
+
+    //     cout << "> ";
+
+    //     strcpy(buffer, command.c_str());
+    //     cout << "kir3: " << client_socket_fd << "    " << client_data_socket_fd << endl;
+
+    //     send(client_socket_fd, buffer, sizeof(buffer), 0);
+
+    //     recv(client_socket_fd, buffer, sizeof(buffer), 0);
+    //     cout << "Command output: " << buffer << endl;
+
+    //     send(client_data_socket_fd, empty, sizeof(empty), 0);
+    //     recv(client_data_socket_fd, buffer, sizeof(buffer), 0);
+    //     cout << "Data output: " << buffer << endl;
+    // }
 }
 
 void* Client::recive_file(void* _client_data_fd)
