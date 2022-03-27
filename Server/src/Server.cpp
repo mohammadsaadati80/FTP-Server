@@ -70,6 +70,7 @@ void Server::run_server()
                     int new_data_socket;
                     if ((new_data_socket = accept(data_fd, NULL, NULL)) < 0)
                         return;
+                    cout << "kir0 :" << fd << " " << command_fd << " " << data_fd << endl; 
                     
                     UserManager::add_connected_user(new_command_socket, new_data_socket);
                     FD_SET(new_command_socket, &copy_fds);
@@ -91,6 +92,8 @@ void Server::run_server()
                     if (result > 0) { // Data is received.
                         vector<string> result = ch1.get_command(buf , fd);
                         send(fd , result[COMMAND].c_str() , result[COMMAND].size() , 0);
+                        cout << "kir : " << fd << endl;
+                        cout << "kir2 : " << UserManager::get_user_by_fd(fd)->get_data_socket() << endl;
                         send(UserManager::get_user_by_fd(fd)->get_data_socket(), result[CHANNEL].c_str() , result[CHANNEL].size() , 0);
                     }
 

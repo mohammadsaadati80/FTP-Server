@@ -180,7 +180,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         if (buf[5]=='-' && buf[6]=='f')
         {
-            for(int i=0 ; i < files.size();i++)
+            for(size_t i=0 ; i < files.size();i++)
                 if (files[i] == name)
                     if (!connected_user->get_user()->is_admin_user())
                     {
@@ -262,7 +262,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back("");
             return result;
         }
-        for(int i=0 ; i < files.size();i++)
+        for(size_t i=0 ; i < files.size();i++)
             if (files[i] == from)
                 if (!connected_user->get_user()->is_admin_user())
                 {
@@ -292,7 +292,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back("");
             return result;
         }
-        for(int i=0 ; i < files.size();i++)
+        for(size_t i=0 ; i < files.size();i++)
             if (files[i] == name)
                 if (!connected_user->get_user()->is_admin_user())
                 {
@@ -352,4 +352,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         result.push_back("");
         return result;
     }
+    result.push_back("501: Syntax error in parameters or arguments.");
+    result.push_back("");
+    return result;
 }
