@@ -46,7 +46,14 @@ string exec(const char* cmd) {
 
 vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
 {
-    vector <User*> users = UserManager::get_all_users();
+    vector<string> result;
+    ConnectedUser* connected_user = UserManager::get_user_by_fd(fd);
+    if (connected_user == nullptr)
+    {
+        result.push_back("500: Error");
+        result.push_back("");
+        return result;
+    }
     if (buf[0] == 'u' && buf[1] == 's' && buf[2] == 'e' && buf[3] == 'r')
     {
         string uname = "";
@@ -57,26 +64,33 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 uname += buf[cnt];
             cnt++;
         }
-        int correctuser = 0 ;
-        for (int i = 0 ; i < int(users.size()) ; i++)
+        if (uname == "")
         {
-            if (users[i]->get_username() == uname)
-            {
-                correctuser = 1;
-                ConnectedUser tmp;
-                tmp.username = uname;
-                tmp.fd = fd;
-                tmp.login = 0;
-                cout << "331: User name okay,need password." << endl;
-                connected_users.push_back(tmp);
-                users[i]->set_fd(fd);
-                writelog("user connected " + currentDateTime() + '\n');
-            }
+            result.push_back("501: Syntax error in parameters or arguments.");
+            result.push_back("");
+            return result;
         }
-        if (correctuser == 0)
-            cout << "430: Invalid username or password" << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
+        if (connected_user->get_is_username_entered() != false)
+        {
+            result.push_back("503: Bad sequence of commands.");
+            result.push_back("");
+            return result;
+        }
+        User* user = UserManager::find_user_by_username(uname);
+        if (user == nullptr)
+        {
+            result.push_back("430: Invalid username or password");
+            result.push_back("");
+            return result;
+        }
+        connected_user->set_user(user);
+        connected_user->set_is_username_entered(true);
+        connected_user->set_is_password_entered(false);
+        connected_user->set_current_directory("");
+        result.push_back("331: User name okay,need password.");
+        result.push_back("");
+        writelog("user connected " + currentDateTime() + '\n');
+        return result;        
     }
     else if (buf[0] == 'p' && buf[1] == 'a' && buf[2] == 's' && buf[3] == 's')
     {
@@ -88,53 +102,43 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 pass += buf[cnt];
             cnt++;
         }
-        int correctpass = 0;
-        for (int i = 0 ; i < int(users.size()) ; i++)
+        if (pass == "")
         {
-            if (users[i]->get_password() == pass )
-            {
-                correctpass = 1;
-                string uname = users[i]->get_username();
-                int was_in = 0;
-                for (int j = 0 ; j < int(connected_users.size()) ; j++)
-                {
-                    if (connected_users[j].username == uname )
-                    {
-                        was_in = 1;
-                        if (connected_users[j].login == 0)
-                        {
-                            connected_users[j].login = 1;
-                            cout << "User logged in, proceed. Logged out if appropriate." << endl;
-                            writelog("user login " + currentDateTime() + '\0');
-                        }
-                        else
-                        {
-                            cout << "Already logged in." << endl;
-                        }
-                    }
-                }
-                if (was_in ==0)
-                    cout << "503: Bad sequence of commands." << endl;
-            }
+            result.push_back("501: Syntax error in parameters or arguments.");
+            result.push_back("");
+            return result;
         }
-        if (correctpass == 0)
-            cout << "430: Invalid username or password" << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
+        if (connected_user->get_is_passsword_entered() != false)
+        {
+            result.push_back("503: Bad sequence of commands.");
+            result.push_back("");
+            return result;
+        }
+        if (connected_user->get_user()->get_password() != pass)
+        {
+            result.push_back("430: Invalid username or password.");
+            result.push_back("");
+            return result;
+        }
+        connected_user->set_is_username_entered(true);
+        connected_user->set_is_password_entered(true);
+        result.push_back("230: User looged in, proceed. Logged out if appropriate.");
+        result.push_back("");
+        writelog("user login " + currentDateTime() + '\0');
+        return result;
     }
-    int check_log = 0;
-    for (int j = 0 ; j < int(connected_users.size()) ; j++)
-        if (connected_users[j].fd == fd)
-            check_log = connected_users[j].login;
-
-    else if (check_log == 1)   //user logined
+    else if (!(connected_user->get_is_username_entered() && connected_user->get_is_passsword_entered()))   //user logined
     {
-    if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
+        result.push_back("332: Need account for login.");
+        result.push_back("");
+        return result;
+    }
+    else if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
     {
-        string directory = exec("pwd");
-        cout << "257: " << directory << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
+        string directory = "257: " + exec("pwd");
+        result.push_back(directory);
+        result.push_back("");
+        return result;
     }
     else if (buf[0] == 'm' && buf[1] == 'k' && buf[2] == 'd')
     {
@@ -146,62 +150,94 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 path += buf[cnt];
             cnt++;
         }
+        if (path == "")
+        {
+            result.push_back("501: Syntax error in parameters or arguments.");
+            result.push_back("");
+            return result;
+        }
         string cmd = "mkdir " + path;
-        string directory = exec(cmd.c_str());
-        cout << "257: " << path << "created." << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
+        string directory = "257: " + exec(cmd.c_str()) + " created.\n";
+        result.push_back(directory);
+        result.push_back("");
+        return result;
     }
     else if (buf[0] == 'd' && buf[1] == 'e' && buf[2] == 'l' && buf[3]=='e')
     {
         int cnt = 8;
-        string name;
+        string name = "";
         while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
         {
             if (buf[cnt]!= ' ')
                 name += buf[cnt];
             cnt++;
         }
+        if (name == "")
+        {
+            result.push_back("501: Syntax error in parameters or arguments.");
+            result.push_back("");
+            return result;
+        }
         if (buf[5]=='-' && buf[6]=='f')
         {
+            for(int i=0 ; i < files.size();i++)
+                if (files[i] == name)
+                    if (!connected_user->get_user()->is_admin_user())
+                    {
+                        result.push_back("550: File unavailable.");
+                        result.push_back("");
+                        return result;
+                    }
             string cmd="rm " + name;
             string directory = exec(cmd.c_str());
-            cout << "250: " << name << " deleted." << endl;
+            result.push_back("250: " + name + " deleted.");
+            result.push_back("");
+            return result;
         }
         else if (buf[5]=='-' && buf[6]=='d')
         {
             string cmd="rm -r " + name;
             string directory = exec(cmd.c_str());
-            cout << "250: " << name << " deleted." << endl;
+            result.push_back("250: " + name + " deleted.");
+            result.push_back("");
+            return result;
         }
         else
-            cout << "500: Error" << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
+        {
+            result.push_back("501: Syntax error in parameters or arguments.");
+            result.push_back("");
+            return result;
+        }
     }
     else if (buf[0] == 'l' && buf[1] == 's')          // badan send ro dar run server bbrim ---- dar yek khat ham bashad
     {
-        string result = exec("ls");
-        char result_arr [result.length() + 1];
-        strcpy(result_arr, result.c_str());
-        send(fd , result_arr , result.length() + 1, 0);
-        cout << "226: List transfer done." << endl;
+        string result_ls = exec("ls");
+        result.push_back("226: List transfer done.");
+        result.push_back(result_ls);
+        return result;
     }
     else if (buf[0] == 'c' && buf[1] == 'w' && buf[2] == 'd')       // check shavad
     {
         int cnt = 4;
-        string directory;
+        string directory = "";
         while (cnt < MAX_BUFFER_SIZE && buf[cnt]!= ' ' && buf[cnt]!= '\0')
         {
             if (buf[cnt]!= ' ')
                 directory += buf[cnt];
             cnt++;
         }
+        // if (directory == "")
+        // {
+        //     result.push_back("501: Syntax error in parameters or arguments.");
+        //     result.push_back("");
+        //     return result;
+        // }
         string cmd = "cd " + directory ;
-        string result = exec(cmd.c_str());
-        cout << "250: Successful change." << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
+        string message = exec(cmd.c_str());
+        connected_user->set_current_directory(directory);
+        result.push_back("250: Successful change.");
+        result.push_back("");
+        return result;
     }
     else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'n' && buf[3] == 'a' && buf[4] == 'm' && buf[5] == 'e') 
     {
@@ -220,42 +256,25 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 to += buf[cnt];
             cnt++;
         }
-        string cmd = "mv " + from + " " + to ;
-        string result = exec(cmd.c_str());
-        cout << "250: Successful change." << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
-    }
-    else if (buf[0] == 'h' && buf[1] == 'e' && buf[2] == 'l' && buf[3] == 'p') 
-    {
-        cout << "214" << endl;
-        cout << "USER [name], Its argument is used to specify the user's string. It is used for user authentication." << endl << endl;
-        cout << "Pass [pass], Used for entering your password after you have entered your username to login." << endl << endl;
-        cout << "PWD, to show current directory and path." << endl << endl;
-        cout << "MKD [directory_path], to make a directory in given path." << endl << endl;
-        cout << "dele -f [filename], to delete a file with given name from current directory." << endl << endl;
-        cout << "dele -d [directory_path], to delete a directory given by its argument." << endl << endl;
-        cout << "ls, to show contents of the current directory." << endl << endl;
-        cout << "CWD [path], to change current directory to the give directory." << endl << endl;
-        cout << "rename [from] [to], renames the file with name 'from' to a file with name 'to'." << endl << endl;
-        cout << "retr [name], for downloading the file with giben name , but you need to have enough available_size for downloading the file." << endl << endl;
-        cout << "help, This command gives you commands list with an explanation." << endl << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
-    }
-    else if (buf[0] == 'q' && buf[1] == 'u' && buf[2] == 'i' && buf[3] == 't') 
-    {
-        for (int j = 0 ; j < int(connected_users.size()) ; j++)
+        if (from == "" || to == "")
         {
-            if (connected_users[j].fd == fd)
-            {
-                connected_users.erase(connected_users.begin()+j);
-            }
+            result.push_back("501: Syntax error in parameters or arguments.");
+            result.push_back("");
+            return result;
         }
-        close(fd);
-        cout << "221: Successful Quit." << endl;
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
+        for(int i=0 ; i < files.size();i++)
+            if (files[i] == from)
+                if (!connected_user->get_user()->is_admin_user())
+                {
+                    result.push_back("550: File unavailable.");
+                    result.push_back("");
+                    return result;
+                }
+        string cmd = "mv " + from + " " + to ;
+        string message = exec(cmd.c_str());
+        result.push_back("250: Successful change.");
+        result.push_back("");
+        return result;
     }
     else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 't' && buf[3] == 'r')
     {
@@ -267,14 +286,31 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 name += buf[cnt];
             cnt++;
         }
-        User* current_user = UserManager::find_user_by_fd(fd);
+        if (name == "")
+        {
+            result.push_back("501: Syntax error in parameters or arguments.");
+            result.push_back("");
+            return result;
+        }
+        for(int i=0 ; i < files.size();i++)
+            if (files[i] == name)
+                if (!connected_user->get_user()->is_admin_user())
+                {
+                    result.push_back("550: File unavailable.");
+                    result.push_back("");
+                    return result;
+                }
+        User* user = connected_user->get_user();
         long sz = GetFileSize(name) / 1000 ;
         cout << "size is " << sz << " KB" << endl;
-
-        if (current_user->get_available_size() < sz)
-            cout << "425: Can't open data connection." << endl;
+        if (user->get_available_size() < sz)
+        {
+            result.push_back("425: Can't open data connection.");
+            result.push_back("");
+            return result;
+        }      
         else {
-            current_user->decrease_available_size(sz);
+            user->decrease_available_size(sz);
             string myText;
             ifstream MyReadFile(name);
             while (getline (MyReadFile, myText)) {
@@ -282,13 +318,38 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
               contents += '\n';
             }
             MyReadFile.close();
-            char result_arr [contents.length() + 1];
-            strcpy(result_arr, contents.c_str());
-            send(fd , result_arr , contents.length() + 1, 0);
+            result.push_back("226: Successful Download.");
+            result.push_back(contents);
+            return result;
         }
-        char empty[1] = {'\n'};
-        send(fd , empty , 1, 0);
     }
+    else if (buf[0] == 'h' && buf[1] == 'e' && buf[2] == 'l' && buf[3] == 'p') 
+    {
+        string help = "";
+        help += "214\n" ;
+        help += "USER [name], Its argument is used to specify the user's string. It is used for user authentication.\n" ;
+        help += "Pass [pass], Used for entering your password after you have entered your username to login.\n" ;
+        help += "PWD, to show current directory and path.\n" ;
+        help += "MKD [directory_path], to make a directory in given path.\n" ;
+        help += "dele -f [filename], to delete a file with given name from current directory.\n";
+        help += "dele -d [directory_path], to delete a directory given by its argument.\n" ;
+        help += "ls, to show contents of the current directory.\n";
+        help += "CWD [path], to change current directory to the give directory.\n" ;
+        help += "rename [from] [to], renames the file with name 'from' to a file with name 'to'.\n";
+        help += "retr [name], for downloading the file with giben name , but you need to have enough available_size for downloading the file.\n";
+        help += "help, This command gives you commands list with an explanation.\n" ;
+        help += "quit, It is used to sign out from the server.\n";
+        result.push_back(help);
+        result.push_back("");
+        return result;
     }
-
+    else if (buf[0] == 'q' && buf[1] == 'u' && buf[2] == 'i' && buf[3] == 't') 
+    {
+        connected_user->set_is_username_entered(false);
+        connected_user->set_is_password_entered(false);
+        connected_user->set_user(nullptr);
+        result.push_back("221: Successful Quit.");
+        result.push_back("");
+        return result;
+    }
 }

@@ -31,6 +31,7 @@ class CommandHandler
 {
 public :
     std::vector<std::string> get_command(char buf[MAX_BUFFER_SIZE] , int fd);
+    static inline std::vector<std::string> files; 
     
 };
 

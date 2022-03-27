@@ -17,7 +17,7 @@ ServerSensitivityList = $(SRC_DIR)/Server.cpp \
 	$(INCLUDE_DIR)/ConfigurationParser.hpp \
 	$(INCLUDE_DIR)/UserManager.hpp \
 	$(INCLUDE_DIR)/CommandHandler.hpp
-
+	
 UserSensitivityList = $(SRC_DIR)/User.cpp
 
 UserManagerSensitivityList = $(SRC_DIR)/UserManager.cpp \
