@@ -95,7 +95,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         connected_user->set_is_password_entered(false);
         connected_user->set_current_directory("");
         result.push_back("331: User name okay,need password.");
-        result.push_back("");
+        string tmp1 = "";
+        result.push_back(tmp1);
         writelog("user " + uname + " connected " + currentDateTime() + '\n');
         return result;        
     }
@@ -229,6 +230,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             string directory = exec(cmd.c_str());
             result.push_back("250: " + name + " deleted.");
             result.push_back("");
+            writelog("user " + connected_user->get_user()->get_username() + " deleted f " +
+                name + " at " + currentDateTime() + '\n');
             return result;
         }
         else if (buf[5]=='-' && buf[6]=='d')
@@ -237,6 +240,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             string directory = exec(cmd.c_str());
             result.push_back("250: " + name + " deleted.");
             result.push_back("");
+            writelog("user " + connected_user->get_user()->get_username() + " deleted directory " +
+                name + " at " + currentDateTime() + '\n');
             return result;
         }
         else
@@ -283,11 +288,15 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         //     result.push_back("");
         //     return result;
         // }
-        string cmd = "cd " + directory ;
-        cout << "cmd isssssss " << cmd << endl;
+        if (directory.size() == 0)
+            chdir("/");
+        else
+            chdir(directory.c_str());
+        /*string cmd = "cd " + directory ;
+        //cout << "cmd is " << cmd << endl;
         string message = exec(cmd.c_str());
         string d = "257: " + exec("pwd");
-        cout << d << endl;
+        cout << d << endl;*/
         connected_user->set_current_directory(directory);
         result.push_back("250: Successful change.");
         result.push_back("");
@@ -335,6 +344,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         string message = exec(cmd.c_str());
         result.push_back("250: Successful change.");
         result.push_back("");
+        writelog("user " + connected_user->get_user()->get_username() + " renamed " +
+         from + " to " + to + " at " + currentDateTime() + '\n');
         return result;
     }
     else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 't' && buf[3] == 'r')
@@ -389,6 +400,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             MyReadFile.close();
             result.push_back("226: Successful Download.");
             result.push_back(contents);
+            writelog("user " + connected_user->get_user()->get_username() + " downloaded " +
+                name + " at " + currentDateTime() + '\n');
             return result;
         }
     }
@@ -428,6 +441,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 result.push_back("");
                 return result;
             } 
+        writelog("user " + connected_user->get_user()->get_username() + " disconnected " 
+          + " at " + currentDateTime() + '\n');
         connected_user->set_is_username_entered(false);
         connected_user->set_is_password_entered(false);
         connected_user->set_user(nullptr);

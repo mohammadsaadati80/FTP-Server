@@ -22,6 +22,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 
 #include "ConfigurationParser.hpp"
 #include "UserManager.hpp"
