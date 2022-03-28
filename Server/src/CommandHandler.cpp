@@ -39,6 +39,24 @@ string exec(const char* cmd) {
     return result;
 }
 
+bool is_exist(string name)
+{
+    string result_ls = exec("ls");
+    for (size_t i = 0; i < result_ls.size(); i++)
+    {  
+        if(result_ls[i] == '\n')
+            continue;
+        string file = "";
+        for(size_t j = i; result_ls[j] != '\n'; j++)
+            file += result_ls[j];
+        string file2 = "./";
+        file2 += file;
+        if(file == name || file2 == name)
+            return true;
+    }  
+    return false;
+}
+
 vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
 {
     vector<string> result;
@@ -212,6 +230,12 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         if (buf[5]=='-' && buf[6]=='f')
         {
+            if (!is_exist(name))
+            {
+                result.push_back("500: Error");
+                result.push_back(DATA_NOTHING);
+                return result;
+            }
             for(size_t i=0 ; i < files.size();i++)
                 if (files[i] == name)
                     if (!connected_user->get_user()->is_admin_user())
@@ -230,6 +254,12 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         else if (buf[5]=='-' && buf[6]=='d')
         {
+            if (!is_exist(name))
+            {
+                result.push_back("500: Error");
+                result.push_back(DATA_NOTHING);
+                return result;
+            }
             string cmd="rm -r " + name;
             string directory = exec(cmd.c_str());
             result.push_back("250: " + name + " deleted.");
@@ -282,6 +312,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         //     result.push_back(DATA_NOTHING);
         //     return result;
         // }
+        if (directory.size() != 0 && directory != "..")
+            if (!is_exist(directory))
+            {
+                result.push_back("500: Error");
+                result.push_back(DATA_NOTHING);
+                return result;
+            }
         if (directory.size() == 0)
             chdir("/");
         else
@@ -321,6 +358,12 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }
+        if (!is_exist(from))
+            {
+                result.push_back("500: Error");
+                result.push_back(DATA_NOTHING);
+                return result;
+            }
         for(size_t i=0 ; i < files.size();i++)
             if (files[i] == from)
                 if (!connected_user->get_user()->is_admin_user())
