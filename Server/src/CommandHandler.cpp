@@ -2,10 +2,6 @@
 
 using namespace std;
 
-vector <ConnectedUser> connected_users;
-int users_size , connected_users_size;
-
-
 const string currentDateTime() {
     time_t     now = time(0);
     struct tm  tstruct;
@@ -51,7 +47,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
     if (connected_user == nullptr)
     {
         result.push_back("500: Error");
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         return result;
     }
     if (buf[0] == 'u' && buf[1] == 's' && buf[2] == 'e' && buf[3] == 'r')
@@ -68,26 +64,26 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             }            
         if (uname == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         if (connected_user->get_is_username_entered() != false)
         {
             result.push_back("503: Bad sequence of commands.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         User* user = UserManager::find_user_by_username(uname);
         if (user == nullptr)
         {
             result.push_back("430: Invalid username or password");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         connected_user->set_user(user);
@@ -95,8 +91,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         connected_user->set_is_password_entered(false);
         connected_user->set_current_directory("");
         result.push_back("331: User name okay,need password.");
-        string tmp1 = "";
-        result.push_back(tmp1);
+        result.push_back(DATA_NOTHING);
         writelog("user " + uname + " connected " + currentDateTime() + '\n');
         return result;        
     }
@@ -114,38 +109,38 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         if (pass == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         if (connected_user->get_is_passsword_entered() != false)
         {
             result.push_back("503: Bad sequence of commands.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         if (connected_user->get_user()->get_password() != pass)
         {
             result.push_back("430: Invalid username or password.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         connected_user->set_is_username_entered(true);
         connected_user->set_is_password_entered(true);
         result.push_back("230: User looged in, proceed. Logged out if appropriate.");
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         writelog("user " + connected_user->get_user()->get_username() + " login " + currentDateTime() + '\n');
         return result;
     }
     else if (!(connected_user->get_is_username_entered() && connected_user->get_is_passsword_entered()))  
     {
         result.push_back("332: Need account for login.");
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         return result;
     }
     else if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
@@ -154,12 +149,12 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         string directory = "257: " + exec("pwd");
         result.push_back(directory);
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         return result;
     }
     else if (buf[0] == 'm' && buf[1] == 'k' && buf[2] == 'd')
@@ -176,13 +171,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         if (path == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         string cmd = "mkdir " + path;
@@ -190,7 +185,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         writelog("user " + connected_user->get_user()->get_username() + " made directory " +
          path + " at " + currentDateTime() + '\n');
         result.push_back(directory);
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         return result;
     }
     else if (buf[0] == 'd' && buf[1] == 'e' && buf[2] == 'l' && buf[3]=='e')
@@ -207,13 +202,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         if (name == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         if (buf[5]=='-' && buf[6]=='f')
@@ -223,13 +218,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                     if (!connected_user->get_user()->is_admin_user())
                     {
                         result.push_back("550: File unavailable.");
-                        result.push_back("");
+                        result.push_back(DATA_NOTHING);
                         return result;
                     }
             string cmd="rm " + name;
             string directory = exec(cmd.c_str());
             result.push_back("250: " + name + " deleted.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             writelog("user " + connected_user->get_user()->get_username() + " deleted f " +
                 name + " at " + currentDateTime() + '\n');
             return result;
@@ -239,7 +234,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             string cmd="rm -r " + name;
             string directory = exec(cmd.c_str());
             result.push_back("250: " + name + " deleted.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             writelog("user " + connected_user->get_user()->get_username() + " deleted directory " +
                 name + " at " + currentDateTime() + '\n');
             return result;
@@ -247,7 +242,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         else
         {
             result.push_back("501: Syntax error in parameters or arguments.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
     }
@@ -257,7 +252,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         string result_ls = exec("ls");
@@ -279,13 +274,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         //     if (buf[i]!= ' ' )
         //     {
         //         result.push_back("501: Syntax error in parameters or arguments.");
-        //         result.push_back("");
+        //         result.push_back(DATA_NOTHING);
         //         return result;
         //     } 
         // if (directory == "")
         // {
         //     result.push_back("501: Syntax error in parameters or arguments.");
-        //     result.push_back("");
+        //     result.push_back(DATA_NOTHING);
         //     return result;
         // }
         if (directory.size() == 0)
@@ -299,7 +294,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         cout << d << endl;*/
         connected_user->set_current_directory(directory);
         result.push_back("250: Successful change.");
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         return result;
     }
     else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'n' && buf[3] == 'a' && buf[4] == 'm' && buf[5] == 'e') 
@@ -323,13 +318,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         if (from == "" || to == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         for(size_t i=0 ; i < files.size();i++)
@@ -337,13 +332,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 if (!connected_user->get_user()->is_admin_user())
                 {
                     result.push_back("550: File unavailable.");
-                    result.push_back("");
+                    result.push_back(DATA_NOTHING);
                     return result;
                 }
         string cmd = "mv " + from + " " + to ;
         string message = exec(cmd.c_str());
         result.push_back("250: Successful change.");
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         writelog("user " + connected_user->get_user()->get_username() + " renamed " +
          from + " to " + to + " at " + currentDateTime() + '\n');
         return result;
@@ -362,13 +357,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         if (name == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }
         for(size_t i=0 ; i < files.size();i++)
@@ -376,7 +371,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 if (!connected_user->get_user()->is_admin_user())
                 {
                     result.push_back("550: File unavailable.");
-                    result.push_back("");
+                    result.push_back(DATA_NOTHING);
                     return result;
                 }
         User* user = connected_user->get_user();
@@ -385,7 +380,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         if (user->get_available_size() < sz)
         {
             result.push_back("425: Can't open data connection.");
-            result.push_back("");
+            result.push_back(DATA_NOTHING);
             return result;
         }      
         else {
@@ -411,7 +406,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         string help = "";
@@ -429,7 +424,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         help += "help, This command gives you commands list with an explanation.\n" ;
         help += "quit, It is used to sign out from the server.\n";
         result.push_back(help);
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         return result;
     }
     else if (buf[0] == 'q' && buf[1] == 'u' && buf[2] == 'i' && buf[3] == 't') 
@@ -438,7 +433,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             if (buf[i]!= ' ' )
             {
                 result.push_back("501: Syntax error in parameters or arguments.");
-                result.push_back("");
+                result.push_back(DATA_NOTHING);
                 return result;
             } 
         writelog("user " + connected_user->get_user()->get_username() + " disconnected " 
@@ -447,10 +442,10 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         connected_user->set_is_password_entered(false);
         connected_user->set_user(nullptr);
         result.push_back("221: Successful Quit.");
-        result.push_back("");
+        result.push_back(DATA_NOTHING);
         return result;
     }
     result.push_back("500: Error");
-    result.push_back("");
+    result.push_back(DATA_NOTHING);
     return result;
 }

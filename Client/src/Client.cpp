@@ -84,6 +84,10 @@ void Client::run_client()
         memset(buffer, 0, sizeof buffer);
         recv(client_data_socket_fd , buffer, MESSAGE_BUFFER_SIZE, 0);
 
-        cout << "Data output: " << buffer << endl;
+        if (buffer[0] != ' ')
+        {
+            cout << "Data output: " << buffer << endl;
+        }
+        
     }
 }
