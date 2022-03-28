@@ -14,19 +14,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <fstream>
+#include <string>
 
 #include "ConfigurationParser.hpp"
 
-#define MESSAGE_BUFFER_SIZE 1024
+#define MESSAGE_BUFFER_SIZE 2048
 constexpr int CONFIG_FILE = 1;
 
 class Client
 {
 public:
     void run_client();
+    void write_downloaded_data_to_file(char buffer[MESSAGE_BUFFER_SIZE]);
 
     static inline int command_channel_port;
     static inline int data_channel_port;
+    static inline int number_of_downloaded_file = 0;
 };
 
 #endif

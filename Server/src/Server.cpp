@@ -94,8 +94,8 @@ void Server::run_server()
                     { 
                         cout << endl << "Message from client with fd = " << fd << " :  " << buffer << endl;
                         vector<string> recive_result = command_handler.get_command(buffer , fd);
-                        send(fd , recive_result[COMMAND_CHANNEL_RESPONE].c_str() , recive_result[COMMAND_CHANNEL_RESPONE].size() , 0);
                         send(UserManager::get_connected_user_by_fd(fd)->get_data_socket() , recive_result[DATA_CHANNEL_RESPONE].c_str() , recive_result[DATA_CHANNEL_RESPONE].size() , 0);
+                        send(fd , recive_result[COMMAND_CHANNEL_RESPONE].c_str() , recive_result[COMMAND_CHANNEL_RESPONE].size() , 0);
                     }
                     if (close_connection == true) 
                     {

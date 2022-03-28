@@ -53,17 +53,38 @@ void Client::run_client()
     
     string command;
     char buffer[MESSAGE_BUFFER_SIZE];
+    bool is_retr = false;
     cout << endl << "Enter command:" << endl << ">> ";
     while(getline(cin, command)) {
+        
+        memset(buffer, 0, MESSAGE_BUFFER_SIZE);
         strcpy(buffer, command.c_str());
-        send(client_command_socket_fd, buffer, sizeof(buffer), 0);
+        is_retr = (buffer[0] == 'r' && buffer[2] == 't');
+        send(client_command_socket_fd, buffer, command.size(), 0);
+
+        memset(buffer, 0, sizeof buffer);
+        recv(client_data_socket_fd , buffer, sizeof(buffer), 0);
+        if (buffer[0] != ' ')
+        {
+            cout << endl << "Data channel respone message: " << endl << endl << buffer << endl;
+            if(is_retr)
+                write_downloaded_data_to_file(buffer);
+        }
+
         memset(buffer, 0, sizeof buffer);
         recv(client_command_socket_fd, buffer, sizeof(buffer), 0);
         cout << endl << "Command channel respone message: " << endl << buffer << endl;
-        memset(buffer, 0, sizeof buffer);
-        recv(client_data_socket_fd , buffer, MESSAGE_BUFFER_SIZE, 0);
-        if (buffer[0] != ' ')
-            cout << endl << "Data channel respone message: " << endl << endl << buffer << endl;
+
         cout << endl << "Enter command:" << endl << ">> ";
     }
+}
+
+void Client::write_downloaded_data_to_file(char buffer[MESSAGE_BUFFER_SIZE])
+{
+    fstream myFile;
+    myFile.open ("downloaded_file_" + to_string(++number_of_downloaded_file) + ".txt", ios::out);
+    myFile << buffer;
+    myFile.close();
+    cout << endl << "Data successfully downloaded and stored in downloaded_file_" 
+        << to_string(number_of_downloaded_file) << ".txt file." << endl;
 }
