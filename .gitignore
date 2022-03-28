@@ -35,6 +35,6 @@
 *.vscode/
 
 #Log
-log.txt
+*.txt
 
 .DS_Store
