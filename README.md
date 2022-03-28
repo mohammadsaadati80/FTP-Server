@@ -12,8 +12,8 @@ All kinds of errors are handled in this process.
 In project repository run `make` command to make project by g++.
 
 ## How to run ?
-In ./Server folder run:
 ### Server
+In ./Server folder run:
 ```bash
 ./server.out config.json
 ```
