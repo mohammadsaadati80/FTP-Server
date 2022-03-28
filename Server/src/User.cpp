@@ -36,7 +36,7 @@ bool User::is_matched_with(string _username, string _password) {
 }
 
 void User::decrease_available_size(double file_size) {
-   available_size -= (file_size/1000);
+   available_size -= file_size;
 }
 
 void User::set_fd (int _fd)

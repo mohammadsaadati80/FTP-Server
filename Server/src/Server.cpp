@@ -99,7 +99,7 @@ void Server::run_server()
                         memset(buf, 0, sizeof buf);
                         //recv(UserManager::get_user_by_fd(fd)->get_data_socket(), buf, sizeof(buf), 0);
                         cout << "jon "<< buf << endl;
-                        send(UserManager::get_user_by_fd(fd)->get_data_socket() , result[1].c_str() , result[1].size() , 0);
+             //           send(UserManager::get_user_by_fd(fd)->get_data_socket() , result[1].c_str() , result[1].size() , 0);
                         cout << "joon2" << endl;
                         //send(fd, result[CHANNEL].c_str() , result[CHANNEL].size() , 0);
                         cout << "joon3" << endl;

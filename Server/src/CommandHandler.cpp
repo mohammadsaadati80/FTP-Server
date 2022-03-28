@@ -17,14 +17,14 @@ const string currentDateTime() {
 
 void writelog(string filetext) 
 {
-    ofstream myfile;
-    myfile.open ("log.txt", fstream::app);
+    fstream myfile;
+    myfile.open ("log.txt", ios::app);
     myfile << filetext;
     myfile.close();
 }
 
 
-long GetFileSize(string filename)
+double GetFileSize(string filename)
 {
     struct stat stat_buf;
     int rc = stat(filename.c_str(), &stat_buf);
@@ -96,7 +96,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         connected_user->set_current_directory("");
         result.push_back("331: User name okay,need password.");
         result.push_back("");
-        writelog("user connected " + currentDateTime() + '\n');
+        writelog("user " + uname + " connected " + currentDateTime() + '\n');
         return result;        
     }
     else if (buf[0] == 'p' && buf[1] == 'a' && buf[2] == 's' && buf[3] == 's')
@@ -138,7 +138,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         connected_user->set_is_password_entered(true);
         result.push_back("230: User looged in, proceed. Logged out if appropriate.");
         result.push_back("");
-        writelog("user login " + currentDateTime() + '\0');
+        writelog("user " + connected_user->get_user()->get_username() + " login " + currentDateTime() + '\n');
         return result;
     }
     else if (!(connected_user->get_is_username_entered() && connected_user->get_is_passsword_entered()))  
@@ -186,6 +186,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         string cmd = "mkdir " + path;
         string directory = "257: " + exec(cmd.c_str()) + " created.\n";
+        writelog("user " + connected_user->get_user()->get_username() + " made directory " +
+         path + " at " + currentDateTime() + '\n');
         result.push_back(directory);
         result.push_back("");
         return result;
@@ -282,7 +284,10 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         //     return result;
         // }
         string cmd = "cd " + directory ;
+        cout << "cmd isssssss " << cmd << endl;
         string message = exec(cmd.c_str());
+        string d = "257: " + exec("pwd");
+        cout << d << endl;
         connected_user->set_current_directory(directory);
         result.push_back("250: Successful change.");
         result.push_back("");
@@ -364,8 +369,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                     return result;
                 }
         User* user = connected_user->get_user();
-        long sz = GetFileSize(name) / 1000 ;
-        cout << "size is " << sz << " KB" << endl;
+        double sz = GetFileSize(name);
+        cout << "size is " << sz << " Byte" << endl;
         if (user->get_available_size() < sz)
         {
             result.push_back("425: Can't open data connection.");
@@ -374,6 +379,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }      
         else {
             user->decrease_available_size(sz);
+            cout << "size is " << user->get_available_size() << endl;
             string myText;
             ifstream MyReadFile(name);
             while (getline (MyReadFile, myText)) {
