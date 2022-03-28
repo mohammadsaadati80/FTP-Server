@@ -19,7 +19,6 @@ void writelog(string filetext)
     myfile.close();
 }
 
-
 double GetFileSize(string filename)
 {
     struct stat stat_buf;
@@ -371,6 +370,12 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 }
         User* user = connected_user->get_user();
         double sz = GetFileSize(name);
+        if (sz == -1)
+        {
+            result.push_back("500: Error");
+            result.push_back(DATA_NOTHING);
+            return result;
+        }
         if (user->get_available_size() < sz)
         {
             result.push_back("425: Can't open data connection.");
