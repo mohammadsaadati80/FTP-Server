@@ -71,6 +71,7 @@ void Server::run_server()
                     if ((new_data_socket = accept(data_fd, NULL, NULL)) < 0)
                         return;
                     cout << "kir0 :" << fd << " " << command_fd << " " << data_fd << endl; 
+                    cout << "kir new :" << fd << " " << new_command_socket << " " << new_data_socket << endl; 
                     
                     UserManager::add_connected_user(new_command_socket, new_data_socket);
                     FD_SET(new_command_socket, &copy_fds);
@@ -92,9 +93,16 @@ void Server::run_server()
                     if (result > 0) { // Data is received.
                         vector<string> result = ch1.get_command(buf , fd);
                         send(fd , result[COMMAND].c_str() , result[COMMAND].size() , 0);
+                        cout << result[COMMAND] << "  ops "<< result[CHANNEL] << endl;
                         cout << "kir : " << fd << endl;
                         cout << "kir2 : " << UserManager::get_user_by_fd(fd)->get_data_socket() << endl;
-                        send(UserManager::get_user_by_fd(fd)->get_data_socket(), result[CHANNEL].c_str() , result[CHANNEL].size() , 0);
+                        memset(buf, 0, sizeof buf);
+                        //recv(UserManager::get_user_by_fd(fd)->get_data_socket(), buf, sizeof(buf), 0);
+                        cout << "jon "<< buf << endl;
+                        send(UserManager::get_user_by_fd(fd)->get_data_socket() , result[CHANNEL].c_str() , result[CHANNEL].size() , 0);
+                        cout << "joon2" << endl;
+                        //send(fd, result[CHANNEL].c_str() , result[CHANNEL].size() , 0);
+                        cout << "joon3" << endl;
                     }
 
                     if (close_connection) {
@@ -112,3 +120,73 @@ void Server::run_server()
         printf("---------------- Event ----------------\n");
     }
 }
+
+
+
+
+
+
+
+
+//     struct sockaddr_in server_sin;
+//     int command_fd;
+//     server_sin.sin_port = htons(command_channel_port);
+//     server_sin.sin_addr.s_addr = inet_addr("127.0.0.1");;
+//     server_sin.sin_family = AF_INET;
+//     int opt = 1;
+    
+//     if ((command_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+//     {
+//         cout << "Failed to create a socket" << endl;
+//         exit(EXIT_FAILURE);
+//     }
+
+//     if (setsockopt(command_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(int)) < 0)
+//     {
+//         cout << "Failed to set socket option" << endl;
+//         exit(EXIT_FAILURE);
+//     }
+
+//     if (bind(command_fd, (struct sockaddr*)& server_sin, sizeof(server_sin)) < 0)
+//     {
+//         cout << "Failed to bind a socket" << endl;
+//         exit(EXIT_FAILURE);
+//     }
+
+//     if (listen(command_fd, MAX_CONNECTIONS) < 0)
+//     {
+//         cout << "Failed to listen" << endl;
+//         exit(EXIT_FAILURE);
+//     }
+
+
+//     struct sockaddr_in server_sin_d;
+//     int data_fd;
+//     server_sin_d.sin_port = htons(data_channel_port);
+//     server_sin_d.sin_addr.s_addr = inet_addr("127.0.0.1");;
+//     server_sin_d.sin_family = AF_INET;
+//     //int opt = 1;
+    
+//     if ((data_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+//     {
+//         cout << "Failed to create a socket" << endl;
+//         exit(EXIT_FAILURE);
+//     }
+
+//     if (setsockopt(data_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(int)) < 0)
+//     {
+//         cout << "Failed to set socket option" << endl;
+//         exit(EXIT_FAILURE);
+//     }
+
+//     if (bind(data_fd, (struct sockaddr*)& server_sin_d, sizeof(server_sin_d)) < 0)
+//     {
+//         cout << "Failed to bind a socket" << endl;
+//         exit(EXIT_FAILURE);
+//     }
+
+//     if (listen(data_fd, MAX_CONNECTIONS) < 0)
+//     {
+//         cout << "Failed to listen" << endl;
+//         exit(EXIT_FAILURE);
+//     }

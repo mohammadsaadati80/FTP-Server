@@ -10,6 +10,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include <cstring>
+#include <stdio.h>
+#include <stdlib.h>
+#include <errno.h>
 
 #include "ConfigurationParser.hpp"
 
@@ -20,7 +24,7 @@ class Client
 {
 public:
     void run_client();
-    void* recive_file(void* _client_data_fd);
+    // void* recive_file(void* _client_data_fd);
     static inline int command_channel_port;
     static inline int data_channel_port;
 };
