@@ -64,6 +64,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 uname += buf[cnt];
             cnt++;
         }
+        for (int i = cnt; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            }            
         if (uname == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
@@ -102,6 +109,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 pass += buf[cnt];
             cnt++;
         }
+        for (int i = cnt; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         if (pass == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
@@ -135,6 +149,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
     }
     else if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
     {
+        for (int i = 3; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         string directory = "257: " + exec("pwd");
         result.push_back(directory);
         result.push_back("");
@@ -150,6 +171,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 path += buf[cnt];
             cnt++;
         }
+        for (int i = cnt; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         if (path == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
@@ -172,6 +200,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 name += buf[cnt];
             cnt++;
         }
+        for (int i = cnt; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         if (name == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
@@ -211,12 +246,19 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
     }
     else if (buf[0] == 'l' && buf[1] == 's')          // badan send ro dar run server bbrim ---- dar yek khat ham bashad
     {
+        for (int i = 2; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         string result_ls = exec("ls");
         result.push_back("226: List transfer done.");
         result.push_back(result_ls);
         return result;
     }
-    else if (buf[0] == 'c' && buf[1] == 'w' && buf[2] == 'd')       // check shavad
+    else if (buf[0] == 'c' && buf[1] == 'w' && buf[2] == 'd')       // check shavad   &   agar directory vojood nadasht she shavad? 
     {
         int cnt = 4;
         string directory = "";
@@ -226,6 +268,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 directory += buf[cnt];
             cnt++;
         }
+        // for (int i = cnt; buf[i]!= '\0'; i++) 
+        //     if (buf[i]!= ' ' )
+        //     {
+        //         result.push_back("501: Syntax error in parameters or arguments.");
+        //         result.push_back("");
+        //         return result;
+        //     } 
         // if (directory == "")
         // {
         //     result.push_back("501: Syntax error in parameters or arguments.");
@@ -256,6 +305,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 to += buf[cnt];
             cnt++;
         }
+        for (int i = cnt; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         if (from == "" || to == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
@@ -286,6 +342,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 name += buf[cnt];
             cnt++;
         }
+        for (int i = cnt; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         if (name == "")
         {
             result.push_back("501: Syntax error in parameters or arguments.");
@@ -325,6 +388,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
     }
     else if (buf[0] == 'h' && buf[1] == 'e' && buf[2] == 'l' && buf[3] == 'p') 
     {
+        for (int i = 4; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         string help = "";
         help += "214\n" ;
         help += "USER [name], Its argument is used to specify the user's string. It is used for user authentication.\n" ;
@@ -336,7 +406,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         help += "ls, to show contents of the current directory.\n";
         help += "CWD [path], to change current directory to the give directory.\n" ;
         help += "rename [from] [to], renames the file with name 'from' to a file with name 'to'.\n";
-        help += "retr [name], for downloading the file with giben name , but you need to have enough available_size for downloading the file.\n";
+        help += "retr [name], for downloading the file with given name , but you need to have enough available_size for downloading the file.\n";
         help += "help, This command gives you commands list with an explanation.\n" ;
         help += "quit, It is used to sign out from the server.\n";
         result.push_back(help);
@@ -345,6 +415,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
     }
     else if (buf[0] == 'q' && buf[1] == 'u' && buf[2] == 'i' && buf[3] == 't') 
     {
+        for (int i = 4; buf[i]!= '\0'; i++) 
+            if (buf[i]!= ' ' )
+            {
+                result.push_back("501: Syntax error in parameters or arguments.");
+                result.push_back("");
+                return result;
+            } 
         connected_user->set_is_username_entered(false);
         connected_user->set_is_password_entered(false);
         connected_user->set_user(nullptr);
@@ -352,7 +429,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         result.push_back("");
         return result;
     }
-    result.push_back("501: Syntax error in parameters or arguments.");
+    result.push_back("500: Error");
     result.push_back("");
     return result;
 }
