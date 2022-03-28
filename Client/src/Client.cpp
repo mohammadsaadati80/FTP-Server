@@ -55,15 +55,15 @@ void Client::run_client()
     char buffer[MESSAGE_BUFFER_SIZE];
     bool is_retr = false;
     cout << endl << "Enter command:" << endl << ">> ";
-    while(getline(cin, command)) {
+    while(getline(cin, command)) { 
         
-        memset(buffer, 0, MESSAGE_BUFFER_SIZE);
-        strcpy(buffer, command.c_str());
+        memset(buffer, 0, MESSAGE_BUFFER_SIZE);    
+        strcpy(buffer, command.c_str());       // Read command line 
         is_retr = (buffer[0] == 'r' && buffer[2] == 't');
-        send(client_command_socket_fd, buffer, command.size(), 0);
+        send(client_command_socket_fd, buffer, command.size(), 0);    // Send request to server
 
         memset(buffer, 0, sizeof buffer);
-        recv(client_data_socket_fd , buffer, sizeof(buffer), 0);
+        recv(client_data_socket_fd , buffer, sizeof(buffer), 0);     //  Recive data channel respone message from server
         if (buffer[0] != ' ')
         {
             cout << endl << "Data channel respone message: " << endl << endl << buffer << endl;
@@ -72,7 +72,7 @@ void Client::run_client()
         }
 
         memset(buffer, 0, sizeof buffer);
-        recv(client_command_socket_fd, buffer, sizeof(buffer), 0);
+        recv(client_command_socket_fd, buffer, sizeof(buffer), 0);      //  Recive coommand channel respone message from server
         cout << endl << "Command channel respone message: " << endl << buffer << endl;
 
         cout << endl << "Enter command:" << endl << ">> ";

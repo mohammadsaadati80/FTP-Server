@@ -32,8 +32,14 @@ class CommandHandler
 {
 public :
     std::vector<std::string> get_command(char buf[MAX_BUFFER_SIZE] , int fd);
-    static inline std::vector<std::string> files; 
-    
+    const std::string current_date_time();
+    void write_log(std::string filetext);
+    double get_file_size(std::string filename);
+    std::string exec(const char* cmd);
+    bool is_file_exist(std::string file);
+    bool is_directory_exist(std::string directory);
+
+    static inline std::vector<std::string> files;   
 };
 
 #endif

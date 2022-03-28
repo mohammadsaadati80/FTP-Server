@@ -53,7 +53,7 @@ void Server::run_server()
 
     while (true) {
         memcpy(&read_fds, &copy_fds, sizeof(copy_fds)); 
-        activity = select(max_fd + 1, &read_fds, NULL, NULL, NULL); 
+        activity = select(max_fd + 1, &read_fds, NULL, NULL, NULL);   // select
         if (activity < 0)
         {
             cout << "Failed to select." << endl;
@@ -63,7 +63,7 @@ void Server::run_server()
         {
             if (FD_ISSET(fd, &read_fds)) 
             {
-                if (fd == command_channel_fd)  // New connection.
+                if (fd == command_channel_fd)  // New connection with client
                 { 
                     int new_command_channel_socket, new_data_channel_socket;
                     if ((new_command_channel_socket = accept(command_channel_fd, NULL, NULL)) < 0)
@@ -83,21 +83,21 @@ void Server::run_server()
                     if (new_command_channel_socket > max_fd)
                         max_fd = new_command_channel_socket;
                 }
-                else  // New readable socket.
+                else  // New readable socket
                 { 
                     bool close_connection = false;
                     memset(buffer, 0, sizeof buffer);
-                    int recive_result = recv(fd, buffer, sizeof(buffer), 0);
+                    int recive_result = recv(fd, buffer, sizeof(buffer), 0);   // Recive data from client
                     if (recive_result == 0 || (recive_result < 0 && errno != EWOULDBLOCK))
                         close_connection = true;
-                    if (recive_result > 0) // Data is received.
+                    if (recive_result > 0)  // Data is received from client
                     { 
                         cout << endl << "Message from client with fd = " << fd << " :  " << buffer << endl;
-                        vector<string> recive_result = command_handler.get_command(buffer , fd);
-                        send(UserManager::get_connected_user_by_fd(fd)->get_data_socket() , recive_result[DATA_CHANNEL_RESPONE].c_str() , recive_result[DATA_CHANNEL_RESPONE].size() , 0);
-                        send(fd , recive_result[COMMAND_CHANNEL_RESPONE].c_str() , recive_result[COMMAND_CHANNEL_RESPONE].size() , 0);
+                        vector<string> recive_result = command_handler.get_command(buffer , fd);  // Handle client request
+                        send(UserManager::get_connected_user_by_fd(fd)->get_data_socket() , recive_result[DATA_CHANNEL_RESPONE].c_str() , recive_result[DATA_CHANNEL_RESPONE].size() , 0);   // Send respone message to client with data channel
+                        send(fd , recive_result[COMMAND_CHANNEL_RESPONE].c_str() , recive_result[COMMAND_CHANNEL_RESPONE].size() , 0);     // Send respone message to client with command channel
                     }
-                    if (close_connection == true) 
+                    if (close_connection == true)   // Cloce connection with client 
                     {
                         close(fd);
                         int data_fd = UserManager::get_connected_user_by_fd(fd)->get_data_socket();

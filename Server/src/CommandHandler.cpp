@@ -2,76 +2,19 @@
 
 using namespace std;
 
-const string currentDateTime() {
-    time_t     now = time(0);
-    struct tm  tstruct;
-    char       buf[80];
-    tstruct = *localtime(&now);
-    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
-    return buf;
-}
-
-void writelog(string filetext) 
-{
-    fstream myfile;
-    myfile.open ("log.txt", ios::app);
-    myfile << filetext;
-    myfile.close();
-}
-
-double GetFileSize(string filename)
-{
-    struct stat stat_buf;
-    int rc = stat(filename.c_str(), &stat_buf);
-    return rc == 0 ? stat_buf.st_size : -1;
-}
-
-string exec(const char* cmd) {
-    array<char, 128> buffer;
-    string result;
-    unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
-    if (!pipe) {
-        throw runtime_error("popen() failed!");
-    }
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
-        result += buffer.data();
-    }
-    return result;
-}
-
-bool is_file_exist(string file)
-{
-    string result_ls = exec("ls");
-    for (size_t i = 0; i < result_ls.size(); i++)
-    {  
-        if(result_ls[i] == '\n')
-            continue;
-        string name = "";
-        for(size_t j = i; result_ls[j] != '\n'; j++)
-            name += result_ls[j];
-        if(name == file || ("./" + name) == file)
-            return true;
-    }  
-    return false;
-}
-
-bool is_directory_exist(string directory)
-{
-    struct stat buffer;
-    return (stat (directory.c_str(), &buffer) == 0);
-}
-
 vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
 {
     vector<string> result;
     ConnectedUser* connected_user = UserManager::get_connected_user_by_fd(fd);
+
     if (connected_user == nullptr)
     {
         result.push_back("500: Error");
         result.push_back(DATA_NOTHING);
         return result;
     }
-    if (buf[0] == 'u' && buf[1] == 's' && buf[2] == 'e' && buf[3] == 'r')
+
+    if (buf[0] == 'u' && buf[1] == 's' && buf[2] == 'e' && buf[3] == 'r')  // USER command handling
     {
         string uname = "";
         int cnt = 5;
@@ -113,10 +56,11 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         connected_user->set_current_directory("");
         result.push_back("331: User name okay,need password.");
         result.push_back(DATA_NOTHING);
-        writelog("user " + uname + " connected " + currentDateTime() + '\n');
+        write_log("user " + uname + " connected " + current_date_time() + '\n');
         return result;        
     }
-    else if (buf[0] == 'p' && buf[1] == 'a' && buf[2] == 's' && buf[3] == 's')
+
+    else if (buf[0] == 'p' && buf[1] == 'a' && buf[2] == 's' && buf[3] == 's')  // PASS command handling
     {
         string pass = "";
         int cnt = 5;
@@ -155,16 +99,18 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         connected_user->set_is_password_entered(true);
         result.push_back("230: User looged in, proceed. Logged out if appropriate.");
         result.push_back(DATA_NOTHING);
-        writelog("user " + connected_user->get_user()->get_username() + " login " + currentDateTime() + '\n');
+        write_log("user " + connected_user->get_user()->get_username() + " login " + current_date_time() + '\n');
         return result;
     }
-    else if (!(connected_user->get_is_username_entered() && connected_user->get_is_passsword_entered()))  
+
+    else if (!(connected_user->get_is_username_entered() && connected_user->get_is_passsword_entered()))  // Check if user login or not
     {
         result.push_back("332: Need account for login.");
         result.push_back(DATA_NOTHING);
         return result;
     }
-    else if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')
+
+    else if (buf[0] == 'p' && buf[1] == 'w' && buf[2] == 'd')  // PWD command handling
     {
         for (int i = 3; buf[i]!= '\0'; i++) 
             if (buf[i]!= ' ' )
@@ -178,7 +124,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         result.push_back(DATA_NOTHING);
         return result;
     }
-    else if (buf[0] == 'm' && buf[1] == 'k' && buf[2] == 'd')
+
+    else if (buf[0] == 'm' && buf[1] == 'k' && buf[2] == 'd')  // MKD command handling
     {
         string path = "";
         int cnt = 4;
@@ -209,13 +156,14 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             }
         string cmd = "mkdir " + path;
         string directory = "257: " + exec(cmd.c_str()) + " created.\n";
-        writelog("user " + connected_user->get_user()->get_username() + " made directory " +
-         path + " at " + currentDateTime() + '\n');
+        write_log("user " + connected_user->get_user()->get_username() + " made directory " +
+         path + " at " + current_date_time() + '\n');
         result.push_back(directory);
         result.push_back(DATA_NOTHING);
         return result;
     }
-    else if (buf[0] == 'd' && buf[1] == 'e' && buf[2] == 'l' && buf[3]=='e')
+
+    else if (buf[0] == 'd' && buf[1] == 'e' && buf[2] == 'l' && buf[3]=='e')  // DELE command handling
     {
         int cnt = 8;
         string name = "";
@@ -238,7 +186,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }
-        if (buf[5]=='-' && buf[6]=='f')
+        if (buf[5]=='-' && buf[6]=='f')       // DELE -F command handling
         {
             if (!is_file_exist(name))
             {
@@ -258,11 +206,11 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             string directory = exec(cmd.c_str());
             result.push_back("250: " + name + " deleted.");
             result.push_back(DATA_NOTHING);
-            writelog("user " + connected_user->get_user()->get_username() + " deleted f " +
-                name + " at " + currentDateTime() + '\n');
+            write_log("user " + connected_user->get_user()->get_username() + " deleted f " +
+                name + " at " + current_date_time() + '\n');
             return result;
         }
-        else if (buf[5]=='-' && buf[6]=='d')
+        else if (buf[5]=='-' && buf[6]=='d')     // DELE -D command handling
         {
             if (!is_directory_exist(name))
             {
@@ -274,8 +222,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             string directory = exec(cmd.c_str());
             result.push_back("250: " + name + " deleted.");
             result.push_back(DATA_NOTHING);
-            writelog("user " + connected_user->get_user()->get_username() + " deleted directory " +
-                name + " at " + currentDateTime() + '\n');
+            write_log("user " + connected_user->get_user()->get_username() + " deleted directory " +
+                name + " at " + current_date_time() + '\n');
             return result;
         }
         else
@@ -285,7 +233,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             return result;
         }
     }
-    else if (buf[0] == 'l' && buf[1] == 's')          
+
+    else if (buf[0] == 'l' && buf[1] == 's')    // LS command handling  
     {
         for (int i = 2; buf[i]!= '\0'; i++) 
             if (buf[i]!= ' ' )
@@ -299,7 +248,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         result.push_back(result_ls);
         return result;
     }
-    else if (buf[0] == 'c' && buf[1] == 'w' && buf[2] == 'd')     // agar directory vojood nadasht she shavad? 
+
+    else if (buf[0] == 'c' && buf[1] == 'w' && buf[2] == 'd')   // CWD command handling
     {
         int cnt = 4;
         string directory = "";
@@ -338,7 +288,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         result.push_back(DATA_NOTHING);
         return result;
     }
-    else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'n' && buf[3] == 'a' && buf[4] == 'm' && buf[5] == 'e') 
+
+    else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 'n' && buf[3] == 'a' && buf[4] == 'm' && buf[5] == 'e')  // REANME command handling
     {
         int cnt = 7;
         string from , to;
@@ -386,11 +337,12 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         string message = exec(cmd.c_str());
         result.push_back("250: Successful change.");
         result.push_back(DATA_NOTHING);
-        writelog("user " + connected_user->get_user()->get_username() + " renamed " +
-         from + " to " + to + " at " + currentDateTime() + '\n');
+        write_log("user " + connected_user->get_user()->get_username() + " renamed " +
+         from + " to " + to + " at " + current_date_time() + '\n');
         return result;
     }
-    else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 't' && buf[3] == 'r')
+
+    else if (buf[0] == 'r' && buf[1] == 'e' && buf[2] == 't' && buf[3] == 'r')   // RETR command handling
     {
         string name = "" , contents = "";
         int cnt = 5;
@@ -422,7 +374,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                     return result;
                 }
         User* user = connected_user->get_user();
-        double sz = GetFileSize(name);
+        double sz = get_file_size(name);
         if (sz == -1)
         {
             result.push_back("500: Error");
@@ -435,7 +387,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }      
-        else {
+        else 
+        {
             user->decrease_available_size(sz);
             string myText;
             ifstream MyReadFile(name);
@@ -446,12 +399,13 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             MyReadFile.close();
             result.push_back("226: Successful Download.");
             result.push_back(contents);
-            writelog("user " + connected_user->get_user()->get_username() + " downloaded " +
-                name + " at " + currentDateTime() + '\n');
+            write_log("user " + connected_user->get_user()->get_username() + " downloaded " +
+                name + " at " + current_date_time() + '\n');
             return result;
         }
     }
-    else if (buf[0] == 'h' && buf[1] == 'e' && buf[2] == 'l' && buf[3] == 'p') 
+
+    else if (buf[0] == 'h' && buf[1] == 'e' && buf[2] == 'l' && buf[3] == 'p')   // HELP command handling
     {
         for (int i = 4; buf[i]!= '\0'; i++) 
             if (buf[i]!= ' ' )
@@ -478,7 +432,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         result.push_back(DATA_NOTHING);
         return result;
     }
-    else if (buf[0] == 'q' && buf[1] == 'u' && buf[2] == 'i' && buf[3] == 't') 
+
+    else if (buf[0] == 'q' && buf[1] == 'u' && buf[2] == 'i' && buf[3] == 't')   // QUIT command handling
     {
         for (int i = 4; buf[i]!= '\0'; i++) 
             if (buf[i]!= ' ' )
@@ -487,8 +442,8 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 result.push_back(DATA_NOTHING);
                 return result;
             } 
-        writelog("user " + connected_user->get_user()->get_username() + " disconnected " 
-          + " at " + currentDateTime() + '\n');
+        write_log("user " + connected_user->get_user()->get_username() + " disconnected " 
+          + " at " + current_date_time() + '\n');
         connected_user->set_is_username_entered(false);
         connected_user->set_is_password_entered(false);
         connected_user->set_user(nullptr);
@@ -496,7 +451,69 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         result.push_back(DATA_NOTHING);
         return result;
     }
+
     result.push_back("500: Error");
     result.push_back(DATA_NOTHING);
     return result;
+}
+
+const string CommandHandler::current_date_time() 
+{
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+    return buf;
+}
+
+void CommandHandler::write_log(string filetext) 
+{
+    fstream myfile;
+    myfile.open ("log.txt", ios::app);
+    myfile << filetext;
+    myfile.close();
+}
+
+double CommandHandler::get_file_size(string filename)
+{
+    struct stat stat_buf;
+    int rc = stat(filename.c_str(), &stat_buf);
+    return rc == 0 ? stat_buf.st_size : -1;
+}
+
+string CommandHandler::exec(const char* cmd) 
+{
+    array<char, 128> buffer;
+    string result;
+    unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+        throw runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+        result += buffer.data();
+    }
+    return result;
+}
+
+bool CommandHandler::is_file_exist(string file)
+{
+    string result_ls = exec("ls");
+    for (size_t i = 0; i < result_ls.size(); i++)
+    {  
+        if(result_ls[i] == '\n')
+            continue;
+        string name = "";
+        for(size_t j = i; result_ls[j] != '\n'; j++)
+            name += result_ls[j];
+        if(name == file || ("./" + name) == file)
+            return true;
+    }  
+    return false;
+}
+
+bool CommandHandler::is_directory_exist(string directory)
+{
+    struct stat buffer;
+    return (stat (directory.c_str(), &buffer) == 0);
 }
