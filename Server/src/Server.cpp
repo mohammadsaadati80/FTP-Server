@@ -97,7 +97,7 @@ void Server::run_server()
                         send(fd , recive_result[COMMAND_CHANNEL_RESPONE].c_str() , recive_result[COMMAND_CHANNEL_RESPONE].size() , 0);
                         send(UserManager::get_connected_user_by_fd(fd)->get_data_socket() , recive_result[DATA_CHANNEL_RESPONE].c_str() , recive_result[DATA_CHANNEL_RESPONE].size() , 0);
                     }
-                    if (close_connection) 
+                    if (close_connection == true) 
                     {
                         close(fd);
                         int data_fd = UserManager::get_connected_user_by_fd(fd)->get_data_socket();
