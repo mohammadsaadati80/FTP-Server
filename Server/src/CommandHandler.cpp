@@ -259,7 +259,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         result.push_back(result_ls);
         return result;
     }
-    else if (buf[0] == 'c' && buf[1] == 'w' && buf[2] == 'd')       // check shavad   &   agar directory vojood nadasht she shavad? 
+    else if (buf[0] == 'c' && buf[1] == 'w' && buf[2] == 'd')       // agar directory vojood nadasht she shavad? 
     {
         int cnt = 4;
         string directory = "";
