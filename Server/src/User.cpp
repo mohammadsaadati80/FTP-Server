@@ -25,25 +25,12 @@ bool User::is_admin_user()
         return is_admin;
 }
 
-double User::get_available_size() {
+double User::get_available_size() 
+{
     return available_size;
 }
 
-bool User::is_matched_with(string _username, string _password) {
-    if (username == _username && password == _password)
-        return true;
-    return false;
-}
-
-void User::decrease_available_size(double file_size) {
+void User::decrease_available_size(double file_size) 
+{
    available_size -= file_size;
-}
-
-void User::set_fd (int _fd)
-{
-        fd = _fd;
-}
-int User::get_fd()
-{
-        return fd;
 }

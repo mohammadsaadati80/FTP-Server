@@ -24,7 +24,7 @@ class Client
 {
 public:
     void run_client();
-    // void* recive_file(void* _client_data_fd);
+
     static inline int command_channel_port;
     static inline int data_channel_port;
 };

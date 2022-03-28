@@ -287,11 +287,6 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             chdir("/");
         else
             chdir(directory.c_str());
-        /*string cmd = "cd " + directory ;
-        //cout << "cmd is " << cmd << endl;
-        string message = exec(cmd.c_str());
-        string d = "257: " + exec("pwd");
-        cout << d << endl;*/
         connected_user->set_current_directory(directory);
         result.push_back("250: Successful change.");
         result.push_back(DATA_NOTHING);
@@ -376,7 +371,6 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 }
         User* user = connected_user->get_user();
         double sz = GetFileSize(name);
-        //cout << "size is " << sz << " Byte" << endl;
         if (user->get_available_size() < sz)
         {
             result.push_back("425: Can't open data connection.");
@@ -385,7 +379,6 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }      
         else {
             user->decrease_available_size(sz);
-            //cout << "size is " << user->get_available_size() << endl;
             string myText;
             ifstream MyReadFile(name);
             while (getline (MyReadFile, myText)) {
