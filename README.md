@@ -1,5 +1,5 @@
 # FTP Server
-Computer Assignment #1, Computer Networks Course, University of Tehran
+Computer Assignment 1, Computer Networks Course, University of Tehran
 
 Implementinga a simple FTP Server and Client using socket programming in C++ language.
 
@@ -20,3 +20,19 @@ In project repository run `make` command to make project by g++.
 ```bash
 ./client.out config.json
 ```
+## Supported Commands
+
+| Template            | Example          | Description                                  |
+| ------------------- | ---------------- | -------------------------------------------- |
+| user "username"     | user Ali         | enter username for authentication            |
+| pass "password"     | pass 1234        | enter password for authentication            |
+| pwd                 | pwd              | get current working directory                |
+| mkd "directory"     | mkd temp         | create new directory with provided name      |
+| dele -f "filename"  | dele -f temp_f   | delete file with provided name               |
+| dele -d "dirpath"   | dele -d temp_d   | delete directory with provided name          |
+| ls                  | ls               | get files and directories in pwd             |
+| cwd "new path"      | cwd new_path     | change current working directory to new_path |
+| rename "from" "to"  | rename old new   | rename file from old name to new name        |
+| retr "filename"     | retr config.json | download a file                              |
+| help                | help             | get help message for commands                |
+| quit                | quit             | logout from account                          |
