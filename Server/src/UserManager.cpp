@@ -15,7 +15,7 @@ User* UserManager::find_user_by_username(std::string username)
     return nullptr;
 }
 
-ConnectedUser* UserManager::get_user_by_fd(int fd)
+ConnectedUser* UserManager::get_connected_user_by_fd(int fd)
 {
     for(size_t i = 0; i < connected_users.size(); ++i)
         if (connected_users[i]->get_command_socket() == fd)

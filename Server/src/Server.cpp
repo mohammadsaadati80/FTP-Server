@@ -13,25 +13,25 @@ int Server::run_socket(int port)
     
     if ((server_socket_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
     {
-        cout << "Failed to create a socket" << endl;
+        cout << "Failed to create a socket." << endl;
         exit(EXIT_FAILURE);
     }
 
     if (setsockopt(server_socket_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(int)) < 0)
     {
-        cout << "Failed to set socket option" << endl;
+        cout << "Failed to set socket option." << endl;
         exit(EXIT_FAILURE);
     }
 
     if (bind(server_socket_fd, (struct sockaddr*)& server_sin, sizeof(server_sin)) < 0)
     {
-        cout << "Failed to bind a socket" << endl;
+        cout << "Failed to bind a socket." << endl;
         exit(EXIT_FAILURE);
     }
 
     if (listen(server_socket_fd, MAX_CONNECTIONS) < 0)
     {
-        cout << "Failed to listen" << endl;
+        cout << "Failed to listen." << endl;
         exit(EXIT_FAILURE);
     }
 
@@ -40,64 +40,71 @@ int Server::run_socket(int port)
 
 void Server::run_server()
 {
-    CommandHandler ch1;
-    int command_fd = run_socket(command_channel_port);
-    int data_fd = run_socket(data_channel_port);
-
+    CommandHandler command_handler;
+    int command_channel_fd = run_socket(command_channel_port);
+    int data_channel_fd = run_socket(data_channel_port);
+    int max_fd = command_channel_fd;
+    int activity;
+    char buffer[MAX_BUFFER_SIZE] = {0};
     fd_set read_fds, copy_fds;
     FD_ZERO(&copy_fds);
-    FD_SET(command_fd, &copy_fds);
-    int max_fd = command_fd;
-    int activity;
-    char buf[MAX_BUFFER_SIZE] = {0};
-    printf("Server is starting ...\n");
+    FD_SET(command_channel_fd, &copy_fds);
+    cout << "Server is running ..." << endl;
 
     while (true) {
         memcpy(&read_fds, &copy_fds, sizeof(copy_fds)); 
-
         activity = select(max_fd + 1, &read_fds, NULL, NULL, NULL); 
-
         if (activity < 0)
+        {
+            cout << "Failed to select." << endl;
             return;
-
-        int ready_sockets = activity;
-        for (int fd = 0; fd <= max_fd  &&  ready_sockets > 0; ++fd) {
-            if (FD_ISSET(fd, &read_fds)) { 
-                if (fd == command_fd) { // New connection.
-                    int new_command_socket;
-                    if ((new_command_socket = accept(command_fd, NULL, NULL)) < 0)
+        }
+        for (int fd = 0; activity > 0 && fd <= max_fd; fd++) 
+        {
+            if (FD_ISSET(fd, &read_fds)) 
+            {
+                if (fd == command_channel_fd)  // New connection.
+                { 
+                    int new_command_channel_socket, new_data_channel_socket;
+                    if ((new_command_channel_socket = accept(command_channel_fd, NULL, NULL)) < 0)
+                    {
+                        cout << endl << "Failed to accept new command channel socket." << endl;
                         return;
-                    int new_data_socket;
-                    if ((new_data_socket = accept(data_fd, NULL, NULL)) < 0)
-                        return;
-                    
-                    UserManager::add_connected_user(new_command_socket, new_data_socket);
-                    FD_SET(new_command_socket, &copy_fds);
-                    if (new_command_socket > max_fd)
-                        max_fd = new_command_socket;
-                }
-                else { // New readable socket.
-                    bool close_connection = false;
-                    memset(buf, 0, sizeof buf);
-                    int result = recv(fd, buf, sizeof(buf), 0);
-
-                    if (result < 0)
-                        if (errno != EWOULDBLOCK)
-                            close_connection = true;
-
-                    if (result == 0) 
-                        close_connection = 1;
-                    
-                    if (result > 0) { // Data is received.
-                        vector<string> result = ch1.get_command(buf , fd);
-                        send(fd , result[COMMAND].c_str() , result[COMMAND].size() , 0);
-                        send(UserManager::get_user_by_fd(fd)->get_data_socket() , result[1].c_str() , result[1].size() , 0);
                     }
-
-                    if (close_connection) {
+                    if ((new_data_channel_socket = accept(data_channel_fd, NULL, NULL)) < 0)
+                    {
+                        cout << endl << "Failed to accept new data channel socket." << endl;
+                        return;
+                    }
+                    UserManager::add_connected_user(new_command_channel_socket, new_data_channel_socket);
+                    cout << endl << "New connection accepted with command channel fd = " << new_command_channel_socket 
+                        << " and data channel fd = " << new_data_channel_socket << "." << endl;
+                    FD_SET(new_command_channel_socket, &copy_fds);
+                    if (new_command_channel_socket > max_fd)
+                        max_fd = new_command_channel_socket;
+                }
+                else  // New readable socket.
+                { 
+                    bool close_connection = false;
+                    memset(buffer, 0, sizeof buffer);
+                    int recive_result = recv(fd, buffer, sizeof(buffer), 0);
+                    if (recive_result == 0 || (recive_result < 0 && errno != EWOULDBLOCK))
+                        close_connection = true;
+                    if (recive_result > 0) // Data is received.
+                    { 
+                        cout << endl << "Message from client with fd = " << fd << " :  " << buffer << endl;
+                        vector<string> recive_result = command_handler.get_command(buffer , fd);
+                        send(fd , recive_result[COMMAND_CHANNEL_RESPONE].c_str() , recive_result[COMMAND_CHANNEL_RESPONE].size() , 0);
+                        send(UserManager::get_connected_user_by_fd(fd)->get_data_socket() , recive_result[DATA_CHANNEL_RESPONE].c_str() , recive_result[DATA_CHANNEL_RESPONE].size() , 0);
+                    }
+                    if (close_connection) 
+                    {
                         close(fd);
-                        close(UserManager::get_user_by_fd(fd)->get_data_socket());
+                        int data_fd = UserManager::get_connected_user_by_fd(fd)->get_data_socket();
+                        close(data_fd);
                         UserManager::remove_connected_user(fd);
+                        cout << endl << "Client with command channel fd = " << fd 
+                            << " and data channel fd = " << data_fd << " successfully closed." << endl;
                         FD_CLR(fd, &copy_fds);
                         if (fd == max_fd)
                             while (FD_ISSET(max_fd, &copy_fds) == 0)
@@ -106,6 +113,5 @@ void Server::run_server()
                 }
             }
         }
-        printf("---------------- Event ----------------\n");
     }
 }

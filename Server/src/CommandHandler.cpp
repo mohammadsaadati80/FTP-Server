@@ -43,7 +43,7 @@ string exec(const char* cmd) {
 vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
 {
     vector<string> result;
-    ConnectedUser* connected_user = UserManager::get_user_by_fd(fd);
+    ConnectedUser* connected_user = UserManager::get_connected_user_by_fd(fd);
     if (connected_user == nullptr)
     {
         result.push_back("500: Error");

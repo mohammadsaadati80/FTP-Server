@@ -32,7 +32,7 @@ class UserManager
 public:
     
     static User* find_user_by_username(std::string user_name);
-    static ConnectedUser* get_user_by_fd(int socket);
+    static ConnectedUser* get_connected_user_by_fd(int socket);
     static void add_connected_user(int command_socket, int data_socket);
     static void remove_connected_user(int socket);
     

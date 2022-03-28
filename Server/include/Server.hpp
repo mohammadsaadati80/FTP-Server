@@ -29,9 +29,8 @@
 #include "CommandHandler.hpp"
 
 #define MAX_CONNECTIONS 10
-
-#define COMMAND 0
-#define CHANNEL 1
+#define COMMAND_CHANNEL_RESPONE 0
+#define DATA_CHANNEL_RESPONE 1
 constexpr int CONFIG_FILE = 1;
 
 class Server
@@ -39,11 +38,10 @@ class Server
 public:
     void run_server();
     int run_socket(int port);
+
     static inline std::vector<std::string> files; 
     static inline int command_channel_port;
     static inline int data_channel_port;    
-
-    
 };
 
 #endif
