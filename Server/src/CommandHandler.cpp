@@ -201,6 +201,12 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }
+        if (is_directory_exist(path))
+            {
+                result.push_back("500: Error");
+                result.push_back(DATA_NOTHING);
+                return result;
+            }
         string cmd = "mkdir " + path;
         string directory = "257: " + exec(cmd.c_str()) + " created.\n";
         writelog("user " + connected_user->get_user()->get_username() + " made directory " +
