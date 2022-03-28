@@ -370,7 +370,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 }
         User* user = connected_user->get_user();
         double sz = GetFileSize(name);
-        cout << "size is " << sz << " Byte" << endl;
+        //cout << "size is " << sz << " Byte" << endl;
         if (user->get_available_size() < sz)
         {
             result.push_back("425: Can't open data connection.");
@@ -379,7 +379,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }      
         else {
             user->decrease_available_size(sz);
-            cout << "size is " << user->get_available_size() << endl;
+            //cout << "size is " << user->get_available_size() << endl;
             string myText;
             ifstream MyReadFile(name);
             while (getline (MyReadFile, myText)) {
