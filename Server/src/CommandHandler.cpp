@@ -39,22 +39,26 @@ string exec(const char* cmd) {
     return result;
 }
 
-bool is_exist(string name)
+bool is_file_exist(string file)
 {
     string result_ls = exec("ls");
     for (size_t i = 0; i < result_ls.size(); i++)
     {  
         if(result_ls[i] == '\n')
             continue;
-        string file = "";
+        string name = "";
         for(size_t j = i; result_ls[j] != '\n'; j++)
-            file += result_ls[j];
-        string file2 = "./";
-        file2 += file;
-        if(file == name || file2 == name)
+            name += result_ls[j];
+        if(name == file || ("./" + name) == file)
             return true;
     }  
     return false;
+}
+
+bool is_directory_exist(string directory)
+{
+    struct stat buffer;
+    return (stat (directory.c_str(), &buffer) == 0);
 }
 
 vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
@@ -230,7 +234,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         if (buf[5]=='-' && buf[6]=='f')
         {
-            if (!is_exist(name))
+            if (!is_file_exist(name))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -254,7 +258,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         else if (buf[5]=='-' && buf[6]=='d')
         {
-            if (!is_exist(name))
+            if (!is_directory_exist(name))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -313,7 +317,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         //     return result;
         // }
         if (directory.size() != 0 && directory != "..")
-            if (!is_exist(directory))
+            if (!is_directory_exist(directory))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -358,7 +362,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }
-        if (!is_exist(from))
+        if (!is_file_exist(from))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
