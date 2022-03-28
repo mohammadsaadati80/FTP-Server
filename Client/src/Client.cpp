@@ -87,7 +87,7 @@ void Client::run_client()
         //send(client_data_socket_fd, empty, sizeof(empty), 0);
         cout << "oosssso" << endl;
         memset(buffer, 0, sizeof buffer);
-        //recv(client_data_socket_fd , buffer, sizeof(buffer), 0);
+        recv(client_data_socket_fd , buffer, sizeof(buffer), 0);
         cout << "plplp" << endl;
         cout << "Data output: " << buffer << endl;
     }

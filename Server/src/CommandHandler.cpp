@@ -141,7 +141,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         writelog("user login " + currentDateTime() + '\0');
         return result;
     }
-    else if (!(connected_user->get_is_username_entered() && connected_user->get_is_passsword_entered()))   //user logined
+    else if (!(connected_user->get_is_username_entered() && connected_user->get_is_passsword_entered()))  
     {
         result.push_back("332: Need account for login.");
         result.push_back("");
@@ -244,7 +244,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             return result;
         }
     }
-    else if (buf[0] == 'l' && buf[1] == 's')          // badan send ro dar run server bbrim ---- dar yek khat ham bashad
+    else if (buf[0] == 'l' && buf[1] == 's')          
     {
         for (int i = 2; buf[i]!= '\0'; i++) 
             if (buf[i]!= ' ' )
