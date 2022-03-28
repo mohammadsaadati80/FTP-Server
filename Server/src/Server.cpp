@@ -70,8 +70,6 @@ void Server::run_server()
                     int new_data_socket;
                     if ((new_data_socket = accept(data_fd, NULL, NULL)) < 0)
                         return;
-                    cout << "kir0 :" << fd << " " << command_fd << " " << data_fd << endl; 
-                    cout << "kir new :" << fd << " " << new_command_socket << " " << new_data_socket << endl; 
                     
                     UserManager::add_connected_user(new_command_socket, new_data_socket);
                     FD_SET(new_command_socket, &copy_fds);
@@ -93,17 +91,7 @@ void Server::run_server()
                     if (result > 0) { // Data is received.
                         vector<string> result = ch1.get_command(buf , fd);
                         send(fd , result[COMMAND].c_str() , result[COMMAND].size() , 0);
-                        cout << result[COMMAND] << "  ops "<< result[CHANNEL] << endl;
-                        cout << "kir : " << fd << endl;
-                        cout << "kir2 : " << UserManager::get_user_by_fd(fd)->get_data_socket() << endl;
-                        memset(buf, 0, sizeof buf);
-                        //recv(UserManager::get_user_by_fd(fd)->get_data_socket(), buf, sizeof(buf), 0);
-                        cout << "jon "<< buf << endl;
-                        //int tst = send(UserManager::get_user_by_fd(fd)->get_data_socket() , result[1].c_str() , result[1].size() , 0);
-                        //cout << "tst is " << tst << endl;
-                        cout << "joon2" << endl;
-                        //send(fd, result[CHANNEL].c_str() , result[CHANNEL].size() , 0);
-                        cout << "joon3" << endl;
+                        send(UserManager::get_user_by_fd(fd)->get_data_socket() , result[1].c_str() , result[1].size() , 0);
                     }
 
                     if (close_connection) {

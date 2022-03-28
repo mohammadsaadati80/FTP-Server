@@ -70,47 +70,20 @@ void Client::run_client()
 
     string command;
     char buffer[MESSAGE_BUFFER_SIZE];
-    //char empty[MESSAGE_BUFFER_SIZE] = {'f', 'F'};
     while(getline(cin, command)) {
 
 
         strcpy(buffer, command.c_str());
-        cout << "kir3: " << client_socket_fd << "    " << client_data_socket_fd << endl;
-
         send(client_socket_fd, buffer, sizeof(buffer), 0);
+        
         memset(buffer, 0, sizeof buffer);
         recv(client_socket_fd, buffer, sizeof(buffer), 0);
         cout << "Command output: " << buffer << endl;
 
 
-        cout << "ooo" << endl;
-        //send(client_data_socket_fd, empty, sizeof(empty), 0);
-        cout << "oosssso" << endl;
         memset(buffer, 0, sizeof buffer);
-        //recv(client_data_socket_fd , buffer, MESSAGE_BUFFER_SIZE, 0);
-        cout << "plplp" << endl;
+        recv(client_data_socket_fd , buffer, MESSAGE_BUFFER_SIZE, 0);
+
         cout << "Data output: " << buffer << endl;
     }
 }
-
-// void* Client::recive_file(void* _client_data_fd)
-// {
-//     char data_buffer[MESSAGE_BUFFER_SIZE] = {0};
-//     int client_data_socket_fd = *(int*) _client_data_fd;
-//     if (recv(client_data_socket_fd, data_buffer, MESSAGE_BUFFER_SIZE, 0) <= 0)
-//     {
-//         cout << "recive() failed." << endl;
-//         exit(EXIT_FAILURE);
-//     }
-//     int size = 0;
-//     FILE *file = fopen("downloaded_file.txt", "wb");
-//     for (int i = 0; i < MESSAGE_BUFFER_SIZE; i++)
-//     {
-//         if (data_buffer[i] == 0) break; 
-//         else size++;  
-//     }
-//     fwrite(data_buffer, size, 1, file);
-//     fclose(file);
-
-//     return NULL;
-// }
