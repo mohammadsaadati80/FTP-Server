@@ -9,16 +9,16 @@ For the file transfering part, the server checks for the file and sends the data
 All kinds of errors are handled in this process.
 
 ## How to  Compile ?
-In __Client/__ and __Server/__ directories run `make` command to make project by g++.
+In __Client__ and __Server__ directories run `make` command to make project by g++.
 
 ## How to run ?
 ### Server
-In __Server/__ directory run:
+In __Server__ directory run:
 ```bash
 ./server.out config.json
 ```
 ### Client
-In __Client/__ directory run:
+In __Client__ directory run:
 ```bash
 ./client.out config.json
 ```
