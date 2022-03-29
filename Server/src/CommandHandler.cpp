@@ -148,7 +148,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }
-        if (is_directory_exist(path))
+        if (is_exist(path))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -188,7 +188,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         if (buf[5]=='-' && buf[6]=='f')       // DELE -F command handling
         {
-            if (!is_file_exist(name))
+            if (!is_exist(name))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -212,7 +212,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         else if (buf[5]=='-' && buf[6]=='d')     // DELE -D command handling
         {
-            if (!is_directory_exist(name))
+            if (!is_exist(name))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -273,7 +273,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         //     return result;
         // }
         if (directory.size() != 0 && directory != "..")
-            if (!is_directory_exist(directory))
+            if (!is_exist(directory))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -319,7 +319,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }
-        if (!is_file_exist(from))
+        if (!is_exist(from))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -496,24 +496,8 @@ string CommandHandler::exec(const char* cmd)
     return result;
 }
 
-bool CommandHandler::is_file_exist(string file)
-{
-    string result_ls = exec("ls");
-    for (size_t i = 0; i < result_ls.size(); i++)
-    {  
-        if(result_ls[i] == '\n')
-            continue;
-        string name = "";
-        for(size_t j = i; result_ls[j] != '\n'; j++)
-            name += result_ls[j];
-        if(name == file || ("./" + name) == file)
-            return true;
-    }  
-    return false;
-}
-
-bool CommandHandler::is_directory_exist(string directory)
+bool CommandHandler::is_exist(string name)
 {
     struct stat buffer;
-    return (stat (directory.c_str(), &buffer) == 0);
+    return (stat (name.c_str(), &buffer) == 0);
 }

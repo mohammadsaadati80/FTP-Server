@@ -36,8 +36,7 @@ public :
     void write_log(std::string filetext);
     double get_file_size(std::string filename);
     std::string exec(const char* cmd);
-    bool is_file_exist(std::string file);
-    bool is_directory_exist(std::string directory);
+    bool is_exist(std::string name);
 
     static inline std::vector<std::string> files;   
 };
