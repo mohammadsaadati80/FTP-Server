@@ -1,6 +1,7 @@
 #include "CommandHandler.hpp"
 
 using namespace std;
+namespace fs = std::filesystem;
 
 vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
 {
@@ -148,7 +149,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }
-        if (is_exist(path))
+        if (is_exist(path) && ((fs::is_directory(path)) || (fs::is_regular_file(path))))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -188,7 +189,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         if (buf[5]=='-' && buf[6]=='f')       // DELE -F command handling
         {
-            if (!is_exist(name))
+            if (!is_exist(name) || !(fs::is_regular_file(name)))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -212,7 +213,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         }
         else if (buf[5]=='-' && buf[6]=='d')     // DELE -D command handling
         {
-            if (!is_exist(name))
+            if (!is_exist(name) || !(fs::is_directory(name)))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -273,7 +274,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
         //     return result;
         // }
         if (directory.size() != 0 && directory != "..")
-            if (!is_exist(directory))
+            if (!is_exist(directory) || !(fs::is_directory(directory)))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -319,7 +320,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
             result.push_back(DATA_NOTHING);
             return result;
         }
-        if (!is_exist(from))
+        if (!is_exist(from) || !(fs::is_regular_file(from)))
             {
                 result.push_back("500: Error");
                 result.push_back(DATA_NOTHING);
@@ -375,7 +376,7 @@ vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
                 }
         User* user = connected_user->get_user();
         double sz = get_file_size(name);
-        if (sz == -1)
+        if ((sz == -1) || !(fs::is_regular_file(name)))
         {
             result.push_back("500: Error");
             result.push_back(DATA_NOTHING);
