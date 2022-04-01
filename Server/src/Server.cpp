@@ -7,7 +7,7 @@ int Server::run_socket(int port)
     struct sockaddr_in server_sin;
     int server_socket_fd;
     server_sin.sin_port = htons(port);
-    server_sin.sin_addr.s_addr = inet_addr("127.0.0.1");;
+    server_sin.sin_addr.s_addr = inet_addr("127.0.0.1");
     server_sin.sin_family = AF_INET;
     int opt = 1;
     
@@ -46,13 +46,13 @@ void Server::run_server()
     int max_fd = command_channel_fd;
     int activity;
     char buffer[MAX_BUFFER_SIZE] = {0};
-    fd_set read_fd, copy_fd;
-    FD_ZERO(&copy_fd);
-    FD_SET(command_channel_fd, &copy_fd);
+    fd_set temp_fd, read_fd;
+    FD_ZERO(&temp_fd);
+    FD_SET(command_channel_fd, &temp_fd);
     cout << "Server is running ..." << endl;
 
     while (true) {
-        memcpy(&read_fd, &copy_fd, sizeof(copy_fd)); 
+        memcpy(&read_fd, &temp_fd, sizeof(temp_fd)); 
         activity = select(max_fd + 1, &read_fd, NULL, NULL, NULL);   // select
         if (activity < 0)
         {
@@ -79,7 +79,7 @@ void Server::run_server()
                     UserManager::add_connected_user(new_command_channel_socket, new_data_channel_socket);
                     cout << endl << "New connection accepted with command channel fd = " << new_command_channel_socket 
                         << " and data channel fd = " << new_data_channel_socket << "." << endl;
-                    FD_SET(new_command_channel_socket, &copy_fd);
+                    FD_SET(new_command_channel_socket, &temp_fd);
                     if (new_command_channel_socket > max_fd)
                         max_fd = new_command_channel_socket;
                 }
@@ -105,9 +105,9 @@ void Server::run_server()
                         UserManager::remove_connected_user(fd);
                         cout << endl << "Client with command channel fd = " << fd 
                             << " and data channel fd = " << data_fd << " successfully closed." << endl;
-                        FD_CLR(fd, &copy_fd);
+                        FD_CLR(fd, &temp_fd);
                         if (fd == max_fd)
-                            while (FD_ISSET(max_fd, &copy_fd) == 0)
+                            while (FD_ISSET(max_fd, &temp_fd) == 0)
                                 max_fd = max_fd - 1;
                     }
                 }
