@@ -46,14 +46,14 @@ void Server::run_server()
     int max_fd = command_channel_fd;
     int activity;
     char buffer[MAX_BUFFER_SIZE] = {0};
-    fd_set read_fds, copy_fds;
-    FD_ZERO(&copy_fds);
-    FD_SET(command_channel_fd, &copy_fds);
+    fd_set read_fd, copy_fd;
+    FD_ZERO(&copy_fd);
+    FD_SET(command_channel_fd, &copy_fd);
     cout << "Server is running ..." << endl;
 
     while (true) {
-        memcpy(&read_fds, &copy_fds, sizeof(copy_fds)); 
-        activity = select(max_fd + 1, &read_fds, NULL, NULL, NULL);   // select
+        memcpy(&read_fd, &copy_fd, sizeof(copy_fd)); 
+        activity = select(max_fd + 1, &read_fd, NULL, NULL, NULL);   // select
         if (activity < 0)
         {
             cout << "Failed to select." << endl;
@@ -61,7 +61,7 @@ void Server::run_server()
         }
         for (int fd = 0; activity > 0 && fd <= max_fd; fd++) 
         {
-            if (FD_ISSET(fd, &read_fds)) 
+            if (FD_ISSET(fd, &read_fd)) 
             {
                 if (fd == command_channel_fd)  // New connection with client
                 { 
@@ -79,15 +79,15 @@ void Server::run_server()
                     UserManager::add_connected_user(new_command_channel_socket, new_data_channel_socket);
                     cout << endl << "New connection accepted with command channel fd = " << new_command_channel_socket 
                         << " and data channel fd = " << new_data_channel_socket << "." << endl;
-                    FD_SET(new_command_channel_socket, &copy_fds);
+                    FD_SET(new_command_channel_socket, &copy_fd);
                     if (new_command_channel_socket > max_fd)
                         max_fd = new_command_channel_socket;
                 }
                 else  // New readable socket
                 { 
-                    bool close_connection = false;
                     memset(buffer, 0, sizeof buffer);
                     int recive_result = recv(fd, buffer, sizeof(buffer), 0);   // Recive data from client
+                    bool close_connection = false;
                     if (recive_result == 0 || (recive_result < 0 && errno != EWOULDBLOCK))
                         close_connection = true;
                     if (recive_result > 0)  // Data is received from client
@@ -105,10 +105,10 @@ void Server::run_server()
                         UserManager::remove_connected_user(fd);
                         cout << endl << "Client with command channel fd = " << fd 
                             << " and data channel fd = " << data_fd << " successfully closed." << endl;
-                        FD_CLR(fd, &copy_fds);
+                        FD_CLR(fd, &copy_fd);
                         if (fd == max_fd)
-                            while (FD_ISSET(max_fd, &copy_fds) == 0)
-                                max_fd -= 1;
+                            while (FD_ISSET(max_fd, &copy_fd) == 0)
+                                max_fd = max_fd - 1;
                     }
                 }
             }
