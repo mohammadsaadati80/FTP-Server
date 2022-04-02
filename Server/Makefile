@@ -2,7 +2,7 @@ CC = g++
 BUILD_DIR = build
 SRC_DIR = src
 INCLUDE_DIR = include
-CFLAGS = -std=c++17 -Wall -Werror -I $(INCLUDE_DIR)
+CFLAGS = -std=c++17 -lstdc++fs -Wall -Werror -I $(INCLUDE_DIR)
 
 OBJECTS = \
 	$(BUILD_DIR)/Main.o \
@@ -45,28 +45,28 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 server.out: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o server.out
+	$(CC) $(OBJECTS) $(CFLAGS) -o server.out
 
 $(BUILD_DIR)/Main.o: $(MainSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/main.cpp -o $(BUILD_DIR)/Main.o
+	$(CC) -c $(SRC_DIR)/main.cpp $(CFLAGS) -o $(BUILD_DIR)/Main.o
 
 $(BUILD_DIR)/Server.o: $(ServerSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/Server.cpp -o $(BUILD_DIR)/Server.o	
+	$(CC) -c $(SRC_DIR)/Server.cpp $(CFLAGS) -o $(BUILD_DIR)/Server.o	
 
 $(BUILD_DIR)/User.o: $(UserSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/User.cpp -o $(BUILD_DIR)/User.o
+	$(CC) -c $(SRC_DIR)/User.cpp $(CFLAGS) -o $(BUILD_DIR)/User.o
 
 $(BUILD_DIR)/UserManager.o: $(UserManagerSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/UserManager.cpp -o $(BUILD_DIR)/UserManager.o
+	$(CC) -c $(SRC_DIR)/UserManager.cpp $(CFLAGS) -o $(BUILD_DIR)/UserManager.o
 
 $(BUILD_DIR)/ConfigurationParser.o: $(ConfigurationParserSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/ConfigurationParser.cpp -o $(BUILD_DIR)/ConfigurationParser.o
+	$(CC) -c $(SRC_DIR)/ConfigurationParser.cpp $(CFLAGS) -o $(BUILD_DIR)/ConfigurationParser.o
 
 $(BUILD_DIR)/CommandHandler.o: $(CommandHandlerSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/CommandHandler.cpp -o $(BUILD_DIR)/CommandHandler.o
+	$(CC) -c $(SRC_DIR)/CommandHandler.cpp $(CFLAGS) -o $(BUILD_DIR)/CommandHandler.o
 
 $(BUILD_DIR)/ConnectedUser.o: $(ConnectedUserSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/ConnectedUser.cpp -o $(BUILD_DIR)/ConnectedUser.o
+	$(CC) -c $(SRC_DIR)/ConnectedUser.cpp $(CFLAGS) -o $(BUILD_DIR)/ConnectedUser.o
 
 .PHONY: clean
 clean:

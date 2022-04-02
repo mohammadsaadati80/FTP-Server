@@ -22,6 +22,11 @@
 #include <time.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <cstdio>
+#include <cstring>
+#include <sys/un.h>
+#include <sys/stat.h>
+
 
 #include "UserManager.hpp"
 
