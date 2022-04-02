@@ -1,6 +1,7 @@
 #include "Client.hpp"
 
 using namespace std;
+namespace fs = std::experimental::filesystem;
 
 void Client::run_client()
 {
@@ -81,8 +82,11 @@ void Client::run_client()
 
 void Client::write_downloaded_data_to_file(char buffer[MESSAGE_BUFFER_SIZE])
 {
+    ++number_of_downloaded_file;
+    while(fs::is_regular_file("downloaded_file_" + to_string(number_of_downloaded_file) + ".txt"))
+        ++number_of_downloaded_file;
     fstream myFile;
-    myFile.open ("downloaded_file_" + to_string(++number_of_downloaded_file) + ".txt", ios::out);
+    myFile.open ("downloaded_file_" + to_string(number_of_downloaded_file) + ".txt", ios::out);
     myFile << buffer;
     myFile.close();
     cout << endl << "Data successfully downloaded and stored in downloaded_file_" 

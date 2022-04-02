@@ -16,8 +16,11 @@
 #include <errno.h>
 #include <fstream>
 #include <string>
-
+#include <cstring>
+#include <sys/un.h>
+#include <sys/stat.h>
 #include "ConfigurationParser.hpp"
+#include <experimental/filesystem>
 
 #define MESSAGE_BUFFER_SIZE 2048
 constexpr int CONFIG_FILE = 1;

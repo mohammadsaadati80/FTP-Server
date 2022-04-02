@@ -2,7 +2,7 @@ CC = g++
 BUILD_DIR = build
 SRC_DIR = src
 INCLUDE_DIR = include
-CFLAGS = -std=c++17  -Wall -Werror -I $(INCLUDE_DIR)
+CFLAGS = -std=c++17 -lstdc++fs -Wall -Werror -I $(INCLUDE_DIR)
 
 OBJECTS = \
 	$(BUILD_DIR)/Main.o \
@@ -25,16 +25,16 @@ $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
 client.out: $(OBJECTS)
-	$(CC) $(CFLAGS) $(OBJECTS) -o client.out
+	$(CC) $(OBJECTS) $(CFLAGS) -o client.out
 
 $(BUILD_DIR)/Main.o: $(MainSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/main.cpp -o $(BUILD_DIR)/Main.o
+	$(CC) -c $(SRC_DIR)/main.cpp $(CFLAGS) -o $(BUILD_DIR)/Main.o
 
 $(BUILD_DIR)/Client.o: $(ClientSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/Client.cpp -o $(BUILD_DIR)/Client.o
+	$(CC) -c $(SRC_DIR)/Client.cpp $(CFLAGS) -o $(BUILD_DIR)/Client.o
 
 $(BUILD_DIR)/ConfigurationParser.o: $(ConfigurationParserSensitivityList)
-	$(CC) $(CFLAGS) -c $(SRC_DIR)/ConfigurationParser.cpp -o $(BUILD_DIR)/ConfigurationParser.o
+	$(CC) -c $(SRC_DIR)/ConfigurationParser.cpp $(CFLAGS) -o $(BUILD_DIR)/ConfigurationParser.o
 
 .PHONY: clean
 clean:
