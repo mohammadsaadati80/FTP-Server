@@ -1,7 +1,9 @@
+#include <experimental/filesystem>
 #include "CommandHandler.hpp"
 
 using namespace std;
-namespace fs = std::filesystem;
+//namespace fs = std::filesystem;
+namespace fs = std::experimental::filesystem;
 
 vector<string> CommandHandler::get_command(char buf[MAX_BUFFER_SIZE] , int fd)
 {
